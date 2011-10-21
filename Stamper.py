@@ -18,16 +18,70 @@
 import os
 import sys
 
+
+class License:
+    """
+
+    """
+    def __init__(self, license_file):
+        self.license_file = license_file
+        self.content = self._getLicenseFileContent()
+        self.size = self._getLicenseSize()
+
+
+    def _getLicenseFileContent(self):
+        """
+        Method returning the content of the license contained in
+        file "filename" as a list. Yet it will raise an IOError exception
+
+        path                    String : License file path
+        """
+        content = None
+
+        try:
+            fd = open(self.license_file, 'r')
+            content = fd.readlines()
+            fd.close()
+        except IOError as (errno, strerror):
+        # Pep8 incompatible Multi-line try/except
+        # taken from python doc
+        # (http://docs.python.org/tutorial/errors.html#handling-exceptions)
+            print "I/O error({0}): {1}".format(errno, strerror)
+
+        return (content)
+
+
+    def _getLicenseSize(self):
+        """Returns the license file size"""
+        size = 0
+
+        for elem in self.content:
+            size += len(elem)
+        return size
+
+
+    def as_dict(self):
+        """
+        """
+        return {
+            "content": self.content,
+            "size": self.size,
+            }
+
+    def format_as(self, lang=""):
+        pass
+
+
 class Stamper:
     """ Class defining methods allowing to
     create a language specific commented license
     in order to apply it as a file header"""
 
-    def __init__(self, license_file):
+    def __init__(self, license):
         """Constructor"""
         self.__name = "fileLicenseType"
-        self.__licenseContent = self.getLicenseFileContent(license_file)
-        self.__licenseSize = self.getLicenseSize()
+        self.license_content = license.content
+        self.license_size = license.size
         self.__filesFuncs = {}
         self.__filesHeaders = {}
         self.initFileTypes()
@@ -64,37 +118,6 @@ class Stamper:
         else:
             listedDirs.append(path)
         return(listedDirs)
-
-
-    def getLicenseFileContent(self, path):
-        """
-        Method returning the content of the license contained in
-        file "filename" as a list. Yet it will raise an IOError exception
-
-        path                    String : License file path
-        """
-        license_content = None
-
-        try:
-            fd = open(path, 'r')
-            license_content = fd.readlines()
-            fd.close()
-        except IOError as (errno, strerror):
-        # Pep8 incompatible Multi-line try/except
-        # taken from python doc
-        # (http://docs.python.org/tutorial/errors.html#handling-exceptions)
-            print "I/O error({0}): {1}".format(errno, strerror)
-
-        return (license_content)
-
-
-    def getLicenseSize(self):
-        """Returns the license file size"""
-        licenseSize = 0
-
-        for elem in self.__licenseContent:
-            licenseSize += len(elem)
-        return licenseSize
 
 
     def dumpFileContentToList(self, path):
@@ -148,7 +171,7 @@ class Stamper:
             if fileType in self.__filesHeaders:
                 headerToWrite = self.__filesHeaders[fileType]
             else:
-                headerToWrite = self.__filesFuncs[fileType](self.__licenseContent)
+                headerToWrite = self.__filesFuncs[fileType](self.license_content)
                 self.__filesHeaders[fileType] = headerToWrite
             self.writeHeaderToFile(dest_filename, headerToWrite)
 
@@ -195,9 +218,4 @@ class Stamper:
 
         for f in files:
             self.applyLicenseToFile(f)
-
-
-
-
-
 

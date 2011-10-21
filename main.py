@@ -16,7 +16,7 @@
 
 
 import sys
-from Stamper import Stamper
+from Stamper import License, Stamper
 
 def                     main():
     argv = sys.argv
@@ -24,7 +24,8 @@ def                     main():
     print argv, argc
 
     if (argc >= 3):
-        licenseMan = Stamper(sys.argv[-1])
+        license = License(sys.argv[-1])
+        licenseMan = Stamper(license)
         elemsToMod = sys.argv[1:-1]
         for elem in elemsToMod:
             licenseMan.applyLicenseToFiles(elem)
