@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright 2010 Theo Crevon
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +15,19 @@
 # limitations under the License.
 
 
-#!/usr/bin/env python
-
 import sys
-from licensingManagement import licensingManagement
+from Stamper import Stamper
 
 def                     main():
     argv = sys.argv
     argc = len(argv)
+    print argv, argc
 
     if (argc >= 3):
-        licenseMan = licensingManagement(sys.argv[-1])
+        licenseMan = Stamper(sys.argv[-1])
         elemsToMod = sys.argv[1:-1]
         for elem in elemsToMod:
-            licenseMan.applyLicense(elem)
+            licenseMan.applyLicenseToFiles(elem)
     else:
         print "Usage: ./license-applier.py <file/dir 1 ... file/dir n> license_file"
 
