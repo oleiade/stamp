@@ -97,19 +97,6 @@ class License:
             "size": self.size,
             }
 
-    def get_license_as(self, lang):
-        """
-        Proxy method which retrieves formatted license content
-        from instance buffer licenses list if already computed.
-        formats it and adds it to buffer if not.
-        """
-        if lang.lower() in self.buffered_licenses.keys():
-            return self.buffered_licenses[lang]
-        else:
-            self.buffered_licenses[lang] = self.format_as(lang)
-
-        return self.buffered_licenses[lang]
-
 
     def format_as(self, lang):
         """
@@ -139,3 +126,20 @@ class License:
         formatted_license.append(comment_pattern[2] + "\n")
 
         return (formatted_license)
+
+
+    def get_license_as(self, lang):
+        """
+        Proxy method which retrieves formatted license content
+        from instance buffer licenses list if already computed.
+        formats it and adds it to buffer if not.
+
+        lang            String : Language name to use comment pattern
+                        from.
+        """
+        if lang.lower() in self.buffered_licenses.keys():
+            return self.buffered_licenses[lang]
+        else:
+            self.buffered_licenses[lang] = self.format_as(lang)
+
+        return self.buffered_licenses[lang]
