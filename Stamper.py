@@ -30,20 +30,39 @@ class Stamper:
         """Constructor"""
         pass
 
+    def _getFileExtension(self, filepath):
+        """
+        Extracts extension from file path.
+        """
+        file_name, file_extension = os.path.splitext(filepath)
 
-    def _getFilesList(self, path):
+        # return file_extension without it's
+        # starting point
+        return file_extension[1:]
+
+    def _getFilesList(self, path, exclude_dotted=True):
         """
         Recursively retrieves a given path files
-        as a list
+        as a list of tuples (file extension, file path).
 
         path                    String : path to retrieve files from.
+        exclude_dotted          Boolean : Wheter to ignore paths beggining
+                                with a dot while walking dirs.
+                                Ex : .git .svn .emacs
         """
         listed_elems = []
 
         for root, dirs, files in os.walk(path):
+            # If bool param is True, exclude dotted
+            # dirs from computing.
+            if exclude_dotted:
+                for (counter, dir) in enumerate(dirs):
+                    if dir.startswith('.'):
+                        del dirs[counter - 1]
             for name in files:
-                filename = os.path.join(root, name)
-                listed_elem.append(filename)
+                file_path = os.path.join(root, name)
+                file_extension = self._getFileExtension(file_path)
+                listed_elems.append((file_extension, file_path))
 
         return(listed_elems)
 
@@ -98,4 +117,5 @@ class Stamper:
     def applyLicense(self, license, path):
         """
         """
-        self
+        files_in_path = self._getFilesList(path)
+        print files_in_path
