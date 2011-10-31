@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from constants import *
+import constants
 
 class License:
     """
@@ -25,18 +25,18 @@ class License:
     """
 
     def __init__(self, license_file):
-        self.extensions = [item for sublist in LANG_EXTENSIONS.values() for item in sublist]
-
+        self.ext = [item for subl in constants.LANG_EXTENSIONS.values()\
+                         for item in subl]
         self.license_file = license_file
-        self.content = self._getLicenseFileContent()
-        self.size = self._getLicenseSize()
+        self.content = self._get_license_file_content()
+        self.size = self._get_license_size()
 
         # Instance attr which intends to dump generated
         # licenses in a list.
         self.buffered_licenses = {}
 
 
-    def _getLicenseFileContent(self):
+    def _get_license_file_content(self):
         """
         Retrieves the content of the license file as a list.
         Yet it will raise an IOError exception
@@ -44,9 +44,9 @@ class License:
         content = None
 
         try:
-            fd = open(self.license_file, 'r')
-            content = fd.readlines()
-            fd.close()
+            file_desc = open(self.license_file, 'r')
+            content = file_desc.readlines()
+            file_desc.close()
         except IOError as (errno, strerror):
         # Pep8 incompatible Multi-line try/except
         # taken from python doc
@@ -56,7 +56,7 @@ class License:
         return (content)
 
 
-    def _getLicenseSize(self):
+    def _get_license_size(self):
         """Returns the license content size"""
         size = 0
 
@@ -74,7 +74,7 @@ class License:
         file_extension          String : file extension (py, c, pl, and so on...)
         """
         if file_extension and isinstance(file_extension, str):
-            return True if (file_extension in self.extensions) else False
+            return True if (file_extension in self.ext) else False
         return False
 
 
@@ -86,14 +86,17 @@ class License:
         extension               String : extension to match with
                                 LANG_EXTENSIONS languages.
         """
-        for key, value in LANG_EXTENSIONS.items():
+        for key, value in constants.LANG_EXTENSIONS.items():
             if extension in value:
                 return key
 
-        raise IndexError("Could not find any language matching with the extension...")
+        raise IndexError("""Could not find any language matching \
+                            with the extension...""")
 
     def as_dict(self):
         """
+        Returns a dict output of License class
+        attributes values.
         """
         return {
             "content": self.content,
@@ -114,12 +117,13 @@ class License:
         lang = lang.lower()
 
         # Retrieving given language comment pattern
-        if lang in LANG_EXTENSIONS.keys():
-            for key, value in LANG_COMMENT_FAMILY.items():
+        if lang in constants.LANG_EXTENSIONS.keys():
+            for key, value in constants.LANG_COMMENT_FAMILY.items():
                 if lang in value:
-                    comment_pattern = LANG_COMMENT_STYLE[key]
+                    comment_pattern = constants.LANG_COMMENT_STYLE[key]
         else:
-            raise KeyError("%s language name does not seem to be present in languages extensions dict" % (lang))
+            raise KeyError("""%s language name does not seem to be present \
+                              in languages extensions dict""" % (lang))
 
         # Updating license content in order to comment it out
         # using computed comment pattern

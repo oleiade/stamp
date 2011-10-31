@@ -16,10 +16,8 @@
 
 
 import os
-import sys
 
-import License
-
+import utils
 
 class Stamper:
     """ Class defining methods allowing to
@@ -30,61 +28,25 @@ class Stamper:
         """Constructor"""
         self.license = license_inst
 
-    def _getFileExtension(self, filepath):
-        """
-        Extracts extension from file path.
-        """
-        file_name, file_extension = os.path.splitext(filepath)
 
-        # return file_extension without it's
-        # starting point
-        return file_extension[1:]
-
-
-    def _remove_dotted_path(self, path):
-        """
-        Removes dirs and files begginingg with dots
-        from a given list, which could, for example,
-        have been yielded by os.walk for example.
-
-        path_list         List : path list where
-        to search and remove those who begins with a dot.
-        """
-        # Keeping a flag value when given path is a string,
-        str_flag = True if isinstance(path, str) else False
-
-        # Encapsulating string in a list in order to keep dry
-        # when path is a string. Selecting explicitly last part
-        # of the path in order to avoir current working dir shortcut (./foo_bar)
-        if str_flag:
-            path_dump = path  # keeping a copy in order to return full path
-            path = [path.split('/')[-1]]
-
-        for (counter, elem) in enumerate(path):
-            if elem.startswith('.'):
-                del path[counter - 1]
-
-        return path_dump if (str_flag and path) else path
-
-
-    def _getDirFiles(self, dir, exclude_dotted=True):
+    def _get_folder_files(self, folder, exclude_dotted=True):
         """
         Recursively retrieves a given path files
         as a list of tuples (file extension, file path).
 
-        dir                    String : path to retrieve files from.
+        folder                    String : path to retrieve files from.
         """
         listed_dirs = []
 
-        for root, dirs, files in os.walk(dir):
+        for root, dirs, files in os.walk(folder):
             # If bool param is True, exclude dotted
             # dirs from computing.
             if exclude_dotted:
-                dirs = self._remove_dotted_path(dirs)
-                files = self._remove_dotted_path(files)
+                dirs = utils.remove_dotted_path(dirs)
+                files = utils.remove_dotted_path(files)
             for name in files:
                 file_path = os.path.join(root, name)
-                file_extension = self._getFileExtension(file_path)
+                file_extension = utils.get_file_extension(file_path)
 
                 # Stamper should not apply a header on file with
                 # no language extension
@@ -94,7 +56,7 @@ class Stamper:
         return listed_dirs
 
 
-    def _getFilesList(self, path, exclude_dotted=True):
+    def _get_files_list(self, path, exclude_dotted=True):
         """
         Recursively retrieves a given path files
         as a list of tuples (file extension, file path).
@@ -107,46 +69,39 @@ class Stamper:
         listed_elems = []
 
         if os.path.isdir(path):
-            listed_elems = self._getDirFiles(path, exclude_dotted)
+            listed_elems = self._get_folder_files(path, exclude_dotted)
         else:
-            file_path = self._remove_dotted_path(path) if exclude_dotted else path
+            file_path = utils.remove_dotted_path(path) if exclude_dotted \
+                                                       else path
             print file_path
             if file_path:
-                file_extension = self._getFileExtension(file_path)
+                file_extension = utils.get_file_extension(file_path)
                 if self.license.is_valid_file_extension(file_extension):
                     listed_elems = [(file_extension, file_path)]
 
         return(listed_elems)
 
 
-    def _dumpFileContent(self, path):
+    def _dump_file_content(self, path):
         """
         Method dumping a file content to a list
 
         path                    String : file to dump path
         """
-        fileDump = []
+        file_dump = []
 
         try:
-            fd = open(path, 'r')
-            fileDump = fd.readlines()
-            fileDump.append("\n\n")
-            fd.close()
+            file_desc = open(path, 'r')
+            file_dump = file_desc.readlines()
+            file_dump.append("\n\n")
+            file_desc.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
-        return (fileDump)
+        return (file_dump)
 
 
-    def _dumpFiles(self, files_list):
-        """
-
-        """
-        for f in files_list:
-            self.files_content.append(self._dumpFileContent(f))
-
-
-    def writeHeaderToFile(self, dest_filename, headerToWrite):
+    def write_header_to_file(self, dest_filename, header):
         """
         Method adding a given license list at the begining
         of a file
@@ -157,20 +112,25 @@ class Stamper:
                                 as a given destination file header.
         """
         try:
-            fileDump =  self._dumpFileContent(dest_filename)
-            fd = open(dest_filename, 'w')
-            fd.seek(0)
-            fd.writelines(headerToWrite + fileDump)
-            fd.close()
+            file_dump =  self._dump_file_content(dest_filename)
+            file_desc = open(dest_filename, 'w')
+            file_desc.seek(0)
+            file_desc.writelines(header + file_dump)
+            file_desc.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
 
-    def applyLicense(self, license, path):
+    def apply_license(self, path):
         """
-        """
-        files_in_path = self._getFilesList(path)
+        Applies a given license (class instance) to a given path.
 
-        for f in files_in_path:
-            file_license = self.license.get_license_as(f[0])
-            self.writeHeaderToFile(f[1], file_license)
+        lic                     License : License class instance, should have
+                                been initialized with one of your choice (apache, bsd, ...)
+        path                    String : File or dir, License should apply to.
+        """
+        files_in_path = self._get_files_list(path)
+
+        for found_file in files_in_path:
+            file_license = self.license.get_license_as(found_file[0])
+            self.write_header_to_file(found_file[1], file_license)

@@ -16,22 +16,21 @@
 
 
 import sys
+
 from License import License
 from Stamper import Stamper
 
 def                     main():
-    argv = sys.argv
-    argc = len(argv)
-
-    if (argc >= 3):
-        license = License(sys.argv[-1])
-        licenseMan = Stamper(license)
-        ## licenseMan.applyLicense(license, argv[1])
-        elemsToMod = sys.argv[1:-1]
-        for e in elemsToMod:
-            licenseMan.applyLicense(license, e)
+    """Main function"""
+    if (len(sys.argv) >= 3):
+        lic = License(sys.argv[-1])
+        stamper = Stamper(lic)
+        paths = sys.argv[1:-1]
+        for path in paths:
+            stamper.apply_license(path)
     else:
-        print "Usage: ./license-applier.py <file/dir 1 ... file/dir n> license_file"
+        print """Usage: ./license-applier.py <file/dir 1\
+        ... file/dir n> license_file"""
 
 if __name__ == "__main__":
     main()
