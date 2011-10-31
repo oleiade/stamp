@@ -50,7 +50,7 @@ class License:
             "semicolon": ('', ';;', ''),
             }
 
-        self.extensions = [item for sublist in LANG_EXTENSIONS.values for item in sublist]
+        self.extensions = [item for sublist in LANG_EXTENSIONS.values() for item in sublist]
 
         self.license_file = license_file
         self.content = self._getLicenseFileContent()
