@@ -26,9 +26,9 @@ class Stamper:
     create a language specific commented license
     in order to apply it as a file header"""
 
-    def __init__(self):
+    def __init__(self, license_inst):
         """Constructor"""
-        pass
+        self.license = license_inst
 
     def _getFileExtension(self, filepath):
         """
@@ -62,7 +62,11 @@ class Stamper:
             for name in files:
                 file_path = os.path.join(root, name)
                 file_extension = self._getFileExtension(file_path)
-                listed_elems.append((file_extension, file_path))
+
+                # Stamper should not apply a header on file with
+                # no language extension
+                if self.license.is_valid_file_extension(file_extension):
+                    listed_elems.append((file_extension, file_path))
 
         return(listed_elems)
 
@@ -90,11 +94,11 @@ class Stamper:
         """
 
         """
-#        for f in files_list:
-#            self.files_content.append(self._dumpFileContent(f))
+        for f in files_list:
+            self.files_content.append(self._dumpFileContent(f))
 
 
-    def _writeHeaderToFile(self, dest_filename, headerToWrite):
+    def writeHeaderToFile(self, dest_filename, headerToWrite):
         """
         Method adding a given license list at the begining
         of a file
@@ -105,7 +109,7 @@ class Stamper:
                                 as a given destination file header.
         """
         try:
-            fileDump =  self._dumpFileContentToList(dest_filename)
+            fileDump =  self._dumpFileContent(dest_filename)
             fd = open(dest_filename, 'w')
             fd.seek(0)
             fd.writelines(headerToWrite + fileDump)
@@ -118,4 +122,7 @@ class Stamper:
         """
         """
         files_in_path = self._getFilesList(path)
-        print files_in_path
+
+        for f in files_in_path:
+            file_license = self.license.get_license_as(f[0])
+            self.writeHeaderToFile(f[1], file_license)
