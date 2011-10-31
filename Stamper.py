@@ -50,15 +50,29 @@ class Stamper:
                                 with a dot while walking dirs.
                                 Ex : .git .svn .emacs
         """
+        def remove_dotted_dirs_from_list(walked_list):
+            """
+            Nested subfunction which removes dirs and files
+            begginingg with dots from a given list, which could
+            have been yielded by os.walk for example.
+
+            walked_list         List : path list where to search and remove
+                                those who begins with a dot.
+            """
+            for (counter, elem) in enumerate(walked_list):
+                if elem.startswith('.'):
+                    del walked_list[counter - 1]
+
+            return walked_list
+
         listed_elems = []
 
         for root, dirs, files in os.walk(path):
             # If bool param is True, exclude dotted
             # dirs from computing.
             if exclude_dotted:
-                for (counter, dir) in enumerate(dirs):
-                    if dir.startswith('.'):
-                        del dirs[counter - 1]
+                dirs = remove_dotted_dirs_from_list(dirs)
+                files = remove_dotted_dirs_from_list(files)
             for name in files:
                 file_path = os.path.join(root, name)
                 file_extension = self._getFileExtension(file_path)
