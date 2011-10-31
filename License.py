@@ -26,7 +26,6 @@ LANG_EXTENSIONS = {
     "js": ["js"],
 }
 
-
 class License:
     """
     Class which intends to manage a license file I/O
@@ -102,6 +101,21 @@ class License:
             return True if (file_extension in self.extensions) else False
         return False
 
+
+    def get_lang_from_extension(self, extension):
+        """
+        Returns the language matching to the given extension
+        in LANG_EXTENSIONS or fail raising an IndexError.
+
+        extension               String : extension to match with
+                                LANG_EXTENSIONS languages.
+        """
+        for key, value in LANG_EXTENSIONS.items():
+            if extension in value:
+                return key
+
+        raise IndexError("Could not find any language matching with the extension...")
+
     def as_dict(self):
         """
         """
@@ -141,7 +155,7 @@ class License:
         return (formatted_license)
 
 
-    def get_license_as(self, lang):
+    def get_license_as(self, extension):
         """
         Proxy method which retrieves formatted license content
         from instance buffer licenses list if already computed.
@@ -150,9 +164,9 @@ class License:
         lang            String : Language name to use comment pattern
                         from.
         """
-        if lang.lower() in self.buffered_licenses.keys():
-            return self.buffered_licenses[lang]
+        if extension.lower() in self.buffered_licenses.keys():
+            return self.buffered_licenses[extension]
         else:
-            self.buffered_licenses[lang] = self.format_as(lang)
+            self.buffered_licenses[extension] = self.format_as(self.get_lang_from_extension(extension))
 
-        return self.buffered_licenses[lang]
+        return self.buffered_licenses[extension]
