@@ -40,6 +40,60 @@ class Stamper:
         # starting point
         return file_extension[1:]
 
+
+    def _remove_dotted_path(self, path):
+        """
+        Removes dirs and files begginingg with dots
+        from a given list, which could, for example,
+        have been yielded by os.walk for example.
+
+        path_list         List : path list where
+        to search and remove those who begins with a dot.
+        """
+        # Keeping a flag value when given path is a string,
+        str_flag = True if isinstance(path, str) else False
+
+        # Encapsulating string in a list in order to keep dry
+        # when path is a string. Selecting explicitly last part
+        # of the path in order to avoir current working dir shortcut (./foo_bar)
+        if str_flag:
+            path_dump = path  # keeping a copy in order to return full path
+            path = [path.split('/')[-1]]
+
+        for (counter, elem) in enumerate(path):
+            if elem.startswith('.'):
+                del path[counter - 1]
+
+        return path_dump if (str_flag and path) else path
+
+
+    def _getDirFiles(self, dir, exclude_dotted=True):
+        """
+        Recursively retrieves a given path files
+        as a list of tuples (file extension, file path).
+
+        dir                    String : path to retrieve files from.
+        """
+        listed_dirs = []
+
+        for root, dirs, files in os.walk(dir):
+            # If bool param is True, exclude dotted
+            # dirs from computing.
+            if exclude_dotted:
+                dirs = self._remove_dotted_path(dirs)
+                files = self._remove_dotted_path(files)
+            for name in files:
+                file_path = os.path.join(root, name)
+                file_extension = self._getFileExtension(file_path)
+
+                # Stamper should not apply a header on file with
+                # no language extension
+                if self.license.is_valid_file_extension(file_extension):
+                    listed_dirs.append((file_extension, file_path))
+
+        return listed_dirs
+
+
     def _getFilesList(self, path, exclude_dotted=True):
         """
         Recursively retrieves a given path files
@@ -50,37 +104,17 @@ class Stamper:
                                 with a dot while walking dirs.
                                 Ex : .git .svn .emacs
         """
-        def remove_dotted_dirs_from_list(walked_list):
-            """
-            Nested subfunction which removes dirs and files
-            begginingg with dots from a given list, which could
-            have been yielded by os.walk for example.
-
-            walked_list         List : path list where to search and remove
-                                those who begins with a dot.
-            """
-            for (counter, elem) in enumerate(walked_list):
-                if elem.startswith('.'):
-                    del walked_list[counter - 1]
-
-            return walked_list
-
         listed_elems = []
 
-        for root, dirs, files in os.walk(path):
-            # If bool param is True, exclude dotted
-            # dirs from computing.
-            if exclude_dotted:
-                dirs = remove_dotted_dirs_from_list(dirs)
-                files = remove_dotted_dirs_from_list(files)
-            for name in files:
-                file_path = os.path.join(root, name)
+        if os.path.isdir(path):
+            listed_elems = self._getDirFiles(path, exclude_dotted)
+        else:
+            file_path = self._remove_dotted_path(path) if exclude_dotted else path
+            print file_path
+            if file_path:
                 file_extension = self._getFileExtension(file_path)
-
-                # Stamper should not apply a header on file with
-                # no language extension
                 if self.license.is_valid_file_extension(file_extension):
-                    listed_elems.append((file_extension, file_path))
+                    listed_elems = [(file_extension, file_path)]
 
         return(listed_elems)
 
