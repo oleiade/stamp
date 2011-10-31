@@ -91,7 +91,7 @@ class License:
         return size
 
 
-    def is_valid_file_extension(file_extension):
+    def is_valid_file_extension(self, file_extension):
         """
         Checks whether given file extension is managed
         or not by License class.
