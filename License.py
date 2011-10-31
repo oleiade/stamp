@@ -14,17 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-LANG_EXTENSIONS = {
-    "c": ["c", "cc", "cpp", "h", "hh", "hpp"],
-    "c++": ["c", "cc", "cpp", "h", "hh", "hpp"],
-    "python": ["py"],
-    "perl": ["pl"],
-    "php": ["php"],
-    "elisp": ["el"],
-    "haskell": ["hl"],
-    "js": ["js"],
-}
+from constants import *
 
 class License:
     """
@@ -35,20 +25,6 @@ class License:
     """
 
     def __init__(self, license_file):
-        self.LANG_COMMENT_FAMILY = {
-            "stars": ["c", "c++", "js", "php"],
-            "sharps": ["python", "perl"],
-            "semicolon": ["elisp"]
-            }
-
-        # Tuple should always have three elems,
-        # a prefix, content comment, suffix.
-        self.LANG_COMMENT_STYLE = {
-            "stars": ('/*', '**', '*/'),
-            "sharps": ('', '#', ''),
-            "semicolon": ('', ';;', ''),
-            }
-
         self.extensions = [item for sublist in LANG_EXTENSIONS.values() for item in sublist]
 
         self.license_file = license_file
@@ -139,9 +115,9 @@ class License:
 
         # Retrieving given language comment pattern
         if lang in LANG_EXTENSIONS.keys():
-            for key, value in self.LANG_COMMENT_FAMILY.items():
+            for key, value in LANG_COMMENT_FAMILY.items():
                 if lang in value:
-                    comment_pattern = self.LANG_COMMENT_STYLE[key]
+                    comment_pattern = LANG_COMMENT_STYLE[key]
         else:
             raise KeyError("%s language name does not seem to be present in languages extensions dict" % (lang))
 
