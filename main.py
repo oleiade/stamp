@@ -16,19 +16,18 @@
 
 
 import sys
-from Stamper import License, Stamper
+from License import License
+from Stamper import Stamper
 
 def                     main():
     argv = sys.argv
     argc = len(argv)
-    print argv, argc
 
     if (argc >= 3):
         license = License(sys.argv[-1])
         licenseMan = Stamper(license)
+        licenseMan.applyLicense(license, argv[1])
         elemsToMod = sys.argv[1:-1]
-        for elem in elemsToMod:
-            licenseMan.applyLicenseToFiles(elem)
     else:
         print "Usage: ./license-applier.py <file/dir 1 ... file/dir n> license_file"
 
