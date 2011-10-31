@@ -50,6 +50,8 @@ class License:
             "semicolon": ('', ';;', ''),
             }
 
+        self.extensions = [item for sublist in LANG_EXTENSIONS.values for item in sublist]
+
         self.license_file = license_file
         self.content = self._getLicenseFileContent()
         self.size = self._getLicenseSize()
@@ -88,6 +90,17 @@ class License:
 
         return size
 
+
+    def is_valid_file_extension(file_extension):
+        """
+        Checks whether given file extension is managed
+        or not by License class.
+
+        file_extension          String : file extension (py, c, pl, and so on...)
+        """
+        if file_extension and isinstance(file_extension, str):
+            return True if (file_extension in self.extensions) else False
+        return False
 
     def as_dict(self):
         """
