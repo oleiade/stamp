@@ -74,7 +74,7 @@ class License:
         file_extension          String : file extension (py, c, pl, and so on...)
         """
         if file_extension and isinstance(file_extension, str):
-            return True if (file_extension in self.ext) else False
+            return True if (file_extension.lower() in self.ext) else False
         return False
 
 
@@ -87,8 +87,8 @@ class License:
                                 LANG_EXTENSIONS languages.
         """
         for key, value in constants.LANG_EXTENSIONS.items():
-            if extension in value:
-                return key
+            if extension.lower() in value:
+                return key.lower()
 
         raise IndexError("""Could not find any language matching \
                             with the extension...""")
@@ -147,6 +147,6 @@ class License:
         if extension.lower() in self.buffered_licenses.keys():
             return self.buffered_licenses[extension]
         else:
-            self.buffered_licenses[extension] = self.format_as(self.get_lang_from_extension(extension))
+            self.buffered_licenses[extension.lower()] = self.format_as(self.get_lang_from_extension(extension))
 
-        return self.buffered_licenses[extension]
+        return self.buffered_licenses[extension.lower()]
