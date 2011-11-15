@@ -8,7 +8,7 @@ class TestLicense(unittest.TestCase):
 
     """
     def setUp(self):
-        test_license_file = os.path.dirname(__file__) + '/valid_test_license_file.txt'
+        test_license_file = os.path.join(os.path.dirname(__file__), 'valid_test_license_file.txt')
         self.inst = License.License(test_license_file)
 
 
