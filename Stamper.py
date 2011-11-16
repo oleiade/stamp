@@ -44,8 +44,8 @@ class Stamper:
             # If bool param is True, exclude dotted
             # dirs from computing.
             if exclude_dotted:
-                dirs = utils.remove_dotted_path(dirs)
-                files = utils.remove_dotted_path(files)
+                dirs = utils.remove_dotted_path_elements(dirs)
+                files = utils.remove_dotted_path_elements(files)
             for name in files:
                 file_path = os.path.join(root, name)
                 file_extension = utils.get_file_extension(file_path)
