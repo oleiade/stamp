@@ -25,7 +25,7 @@ setup(
     },
 
     classifiers = [
-        'Development Status :: 0.0.1 - Early Alpha',
+        'Development Status :: 0.1 - Early Alpha',
         'Environment :: Unix-like Systems',
         'Intended Audience :: Developers, Project managers, Sys admins',
         'Programming Language :: Python',
