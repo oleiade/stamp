@@ -14,6 +14,11 @@ setup(
     keywords = "stamp license licenser open-source",
     url = "http://github.com/oleiade/stamp",
 
+    test_suite = "nose.collector",
+    tests_require = "nose==1.1.2",
+#    tests_require = "nose==1.0.0",
+
+    # Setting up executable/main functions links
     entry_points = {
         'console_scripts': [
             'stamp = stamp.main:main',
