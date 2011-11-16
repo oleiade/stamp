@@ -1,8 +1,7 @@
 import os
 import unittest
-from random import shuffle
 
-import utils
+from stamp import utils
 
 class TestUtils(unittest.TestCase):
     """ """

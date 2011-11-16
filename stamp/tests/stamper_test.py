@@ -3,7 +3,8 @@
 import os
 import unittest
 
-import License, Stamper, constants
+from stamp import License, Stamper, constants
+
 
 class TestStamper(unittest.TestCase):
     """

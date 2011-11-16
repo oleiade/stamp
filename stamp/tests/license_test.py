@@ -1,7 +1,7 @@
 import os
 import unittest
 
-import License, constants
+from stamp import License, constants
 
 class TestLicense(unittest.TestCase):
     """
