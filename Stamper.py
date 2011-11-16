@@ -31,8 +31,10 @@ class Stamper:
 
     def _get_folder_files(self, folder, exclude_dotted=True):
         """
-        Recursively retrieves a given path files
-        as a list of tuples (file extension, file path).
+        Given a folder, recursively retrieves contained files
+        returns a list of tuples (file extension, file path).
+
+        NB : Shall not be used independtly.
 
         folder                    String : path to retrieve files from.
         """
@@ -42,24 +44,27 @@ class Stamper:
             # If bool param is True, exclude dotted
             # dirs from computing.
             if exclude_dotted:
-                dirs = utils.remove_dotted_path(dirs)
-                files = utils.remove_dotted_path(files)
+                dirs = utils.remove_dotted_path_elements(dirs)
+                files = utils.remove_dotted_path_elements(files)
             for name in files:
                 file_path = os.path.join(root, name)
                 file_extension = utils.get_file_extension(file_path)
 
                 # Stamper should not apply a header on file with
                 # no language extension
+                print "file %s : %s" % (name, self.license.is_valid_file_extension(file_extension))
                 if self.license.is_valid_file_extension(file_extension):
                     listed_dirs.append((file_extension, file_path))
 
         return listed_dirs
 
 
-    def _get_files_list(self, path, exclude_dotted=True):
+    def _get_path_elements(self, path, exclude_dotted=True):
         """
-        Recursively retrieves a given path files
-        as a list of tuples (file extension, file path).
+        Recursively retrieves a given path files.
+        returns a list of tuples (file extension, file path).
+        If given path is a folder, returns get_folder_files result,
+        else uses the given path file.
 
         path                    String : path to retrieve files from.
         exclude_dotted          Boolean : Wheter to ignore paths beggining
@@ -73,7 +78,6 @@ class Stamper:
         else:
             file_path = utils.remove_dotted_path(path) if exclude_dotted \
                                                        else path
-            print file_path
             if file_path:
                 file_extension = utils.get_file_extension(file_path)
                 if self.license.is_valid_file_extension(file_extension):
@@ -108,7 +112,7 @@ class Stamper:
 
         dest_filename           String : candidate filename which license should
                                 be applied to.
-        header                  String : Formatted, license content to write
+        header                  List : Formatted, license content to write
                                 as a given destination file header.
         """
         try:
@@ -129,7 +133,7 @@ class Stamper:
                                 been initialized with one of your choice (apache, bsd, ...)
         path                    String : File or dir, License should apply to.
         """
-        files_in_path = self._get_files_list(path)
+        files_in_path = self._get_path_elements(path)
 
         for found_file in files_in_path:
             file_license = self.license.get_license_as(found_file[0])
