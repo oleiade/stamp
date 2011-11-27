@@ -24,19 +24,11 @@ def remove_dotted_path_elements(path):
     path_elem         List/String : path element where
     to search and remove those who begins with a dot.
     """
-    # Keeping a flag value when given path is a string,
-#    str_flag = True if isinstance(path, str) else False
-
     # Encapsulating string in a list in order to keep dry
     # when path is a string. Selecting explicitly last part
     # of the path in order to avoir current working dir shortcut (./foo_bar)
-#    if str_flag:
-#        path_dump = path # keeping a copy in order to return full path
-#        path = [path.split('/')[-1]]
-
     for (counter, elem) in enumerate(path):
         if elem.startswith('.'):
             del path[counter]
 
     return path
-#    return path_dump if (str_flag and path) else path

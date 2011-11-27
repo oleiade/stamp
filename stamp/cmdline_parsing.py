@@ -32,6 +32,8 @@ def gen_arg_parser():
     parser.add_argument('paths', metavar='File/Folder', type=str, nargs='+',
                         help='Files or folder to recursively add license to')
 
+    parser.add_argument('-v', '--verbose', action='append_const', const=1)
+
     return parser
 
 
@@ -48,6 +50,7 @@ def assert_license_file_format(args):
         error_message = "Error : Only .lic license files format is valid"
 
     return passes, error_message
+
 
 def compute_args(arg_parser):
     """

@@ -30,4 +30,6 @@ def main():
         lic = License.License(args.license_file)
         stamper = Stamper.Stamper(lic)
         for path in args.paths:
-            stamper.apply_license(path)
+            stamper.apply_license(path, verbose=args.verbose)
+
+    print "Done"

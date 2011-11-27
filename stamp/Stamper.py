@@ -52,7 +52,6 @@ class Stamper:
 
                 # Stamper should not apply a header on file with
                 # no language extension
-                print "file %s : %s" % (name, self.license.is_valid_file_extension(file_extension))
                 if self.license.is_valid_file_extension(file_extension):
                     listed_dirs.append((file_extension, file_path))
 
@@ -125,7 +124,7 @@ class Stamper:
             print "I/O error({0}): {1}".format(errno, strerror)
 
 
-    def apply_license(self, path):
+    def apply_license(self, path, verbose=False):
         """
         Applies a given license (class instance) to a given path.
 
@@ -138,3 +137,5 @@ class Stamper:
         for found_file in files_in_path:
             file_license = self.license.get_license_as(found_file[0])
             self.write_header_to_file(found_file[1], file_license)
+            if verbose :
+                print "Stamping: %s" % found_file[1]
