@@ -30,16 +30,10 @@ def gen_arg_parser():
     returns a argparse.ArgumentParser class instance.
     """
     parser = argparse.ArgumentParser(description="Applies a given license to files/folders")
+    parser.add_argument('license_file', metavar='License file', type=str, action='store',
+                        help='Path to the license content file to apply on given files')
     parser.add_argument('paths', metavar='File/Folder', type=str, nargs='+',
                         help='Files or folder to recursively add license to')
-
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-l', '--license-file', dest="license_file",
-                        type=str, help='Specify a license file to use, instead of any known pattern')
-    # Will be used when License inherited classes will implement common
-    # licenses existing paterns.
-    group.add_argument('-p', '--license-pattern', dest="license_pattern",
-                       type=str, help='Which license pattern to use')
 
     return parser
 
@@ -54,6 +48,3 @@ def main():
         stamper = Stamper.Stamper(lic)
         for path in args.paths:
             stamper.apply_license(path)
-#    else:
-#        print """Usage: ./license-applier.py <file/dir 1\
-#        ... file/dir n> license_file"""
