@@ -17,6 +17,8 @@
 
 import argparse
 
+from stamp import utils
+
 def gen_arg_parser():
     """
     Generates the application command line
@@ -33,6 +35,20 @@ def gen_arg_parser():
     return parser
 
 
+def assert_license_file_format(args):
+    """
+    Assert param given license file has the .lic extension.
+    """
+    passes = True
+    error_message = None
+    file_ext = utils.get_file_extension(args.license_file)
+
+    if file_ext != 'lic':
+        passes = False
+        error_message = "Error : Only .lic license files format is valid"
+
+    return passes, error_message
+
 def compute_args(arg_parser):
     """
     Gets the arguments from the command line and checks
@@ -42,5 +58,13 @@ def compute_args(arg_parser):
     attached to the license file name. (incoming feature)
     """
     args = arg_parser.parse_args()
+
+    assertions = [assert_license_file_format]
+
+    for assertion in assertions:
+        passes, error_msg = assertion(args)
+        if not passes:
+            arg_parser.error(error_msg)
+            break
 
     return args
