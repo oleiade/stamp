@@ -39,4 +39,4 @@ def chunker(iterable, chunksize):
     Generates an iterator which returns chunks
     of the given iterable.
     """
-    return (seq(iterable[pos:pos + chunksize] for pos in xrange(0, len(iterable), chunksize))
+    return (seq(iterable[pos:pos + chunksize] for pos in xrange(0, len(iterable), chunksize)))

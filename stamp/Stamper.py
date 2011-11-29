@@ -27,6 +27,7 @@ class Stamper:
     def __init__(self, license_inst):
         """Constructor"""
         self.license = license_inst
+        self.fd_buffer = {}
 
 
     def _get_folder_files(self, folder, exclude_dotted=True):
@@ -94,14 +95,14 @@ class Stamper:
         file_dump = []
 
         try:
-            file_desc = open(path, 'r')
+            file_desc = open(path, 'r+')
             file_dump = file_desc.readlines()
             file_dump.append("\n\n")
             file_desc.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
-        return (file_dump)
+        return file_dump
 
 
     def write_header_to_file(self, dest_filename, header):
@@ -122,6 +123,32 @@ class Stamper:
             file_desc.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
+
+
+    def _clear_fd_buffers(self):
+        """
+        """
+        for fd in self.fd_buffer.values():
+            try:
+                fd.close()
+            except IOError as (errno, strerror):
+                print "I/O error({0}: {1}".format(errno.strerror)
+
+        self.fd_buffer = {}
+
+        return
+
+
+    def get_fd_from_path(self, path, mode="r+"):
+        """
+        """
+        try:
+            file_desc = open(path, mode)
+            self.fd_buffer[path] = file_desc
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+
+        return
 
 
     def apply_license(self, path, verbose=False):
