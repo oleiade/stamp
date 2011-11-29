@@ -16,35 +16,20 @@
 
 
 import sys
-import argparse
 
 from stamp import License
 from stamp import Stamper
-
-
-def gen_arg_parser():
-    """
-    Generates the application command line
-    arguments parser.
-
-    returns a argparse.ArgumentParser class instance.
-    """
-    parser = argparse.ArgumentParser(description="Applies a given license to files/folders")
-    parser.add_argument('license_file', metavar='License file', type=str, action='store',
-                        help='Path to the license content file to apply on given files')
-    parser.add_argument('paths', metavar='File/Folder', type=str, nargs='+',
-                        help='Files or folder to recursively add license to')
-
-    return parser
-
+from stamp.cmdline_parsing import gen_arg_parser, compute_args
 
 def main():
     """Main function"""
     arg_parser = gen_arg_parser()
-    args = arg_parser.parse_args()
+    args = compute_args(arg_parser)
 
     if args.license_file:
         lic = License.License(args.license_file)
         stamper = Stamper.Stamper(lic)
         for path in args.paths:
-            stamper.apply_license(path)
+            stamper.apply_license(path, verbose=args.verbose)
+
+    print "Done"

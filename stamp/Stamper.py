@@ -26,7 +26,11 @@ class Stamper:
 
     def __init__(self, license_inst):
         """Constructor"""
+        self.MAX_CONCURRENT_FD = 128
+        self.PATH_CHUNKS_SIZE = 128
+
         self.license = license_inst
+        self.fd_buffer = {}
 
 
     def _get_folder_files(self, folder, exclude_dotted=True):
@@ -52,9 +56,8 @@ class Stamper:
 
                 # Stamper should not apply a header on file with
                 # no language extension
-                print "file %s : %s" % (name, self.license.is_valid_file_extension(file_extension))
                 if self.license.is_valid_file_extension(file_extension):
-                    listed_dirs.append((file_extension, file_path))
+                    listed_dirs.append([file_extension, file_path])
 
         return listed_dirs
 
@@ -81,12 +84,12 @@ class Stamper:
             if file_path:
                 file_extension = utils.get_file_extension(file_path)
                 if self.license.is_valid_file_extension(file_extension):
-                    listed_elems = [(file_extension, file_path)]
+                    listed_elems = [[file_extension, file_path]]
 
         return(listed_elems)
 
 
-    def _dump_file_content(self, path):
+    def _dump_file_content(self, file_descriptor):
         """
         Method dumping a file content to a list
 
@@ -95,17 +98,55 @@ class Stamper:
         file_dump = []
 
         try:
-            file_desc = open(path, 'r')
-            file_dump = file_desc.readlines()
+            file_dump = file_descriptor.readlines()
             file_dump.append("\n\n")
-            file_desc.close()
+            # using fd buffer, always seek(0) after each operation.
+            file_descriptor.seek(0)
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
-        return (file_dump)
+        return file_dump
 
 
-    def write_header_to_file(self, dest_filename, header):
+    def _get_fd_from_path(self, path, mode="r+"):
+        """
+        """
+        if len(self.fd_buffer) < self.MAX_CONCURRENT_FD:
+            try:
+                file_desc = open(path, mode)
+                self.fd_buffer[path] = file_desc
+            except IOError as (errno, strerror):
+                print "I/O error({0}): {1}".format(errno, strerror)
+        else:
+            return False
+
+        return True
+
+
+    def _clear_fd_buffers(self):
+        """
+        """
+        for fd in self.fd_buffer.values():
+            try:
+                fd.close()
+            except IOError as (errno, strerror):
+                print "I/O error({0}: {1}".format(errno.strerror)
+
+        self.fd_buffer = {}
+
+        return
+
+
+    def buffer_file_descriptors(self, paths_list, mode):
+        """
+        """
+        for p in paths_list:
+            self._get_fd_from_path(p, mode=mode)
+
+        return
+
+
+    def write_header_to_file(self, file_descriptor, header):
         """
         Method adding a given license list at the begining
         of a file
@@ -116,16 +157,15 @@ class Stamper:
                                 as a given destination file header.
         """
         try:
-            file_dump =  self._dump_file_content(dest_filename)
-            file_desc = open(dest_filename, 'w')
-            file_desc.seek(0)
-            file_desc.writelines(header + file_dump)
-            file_desc.close()
+            file_dump =  self._dump_file_content(file_descriptor)
+            file_descriptor.writelines(header + file_dump)
+            # using fd buffer, always seek(0) after each operation.
+            file_descriptor.seek(0)
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
 
-    def apply_license(self, path):
+    def apply_license(self, path, verbose=False):
         """
         Applies a given license (class instance) to a given path.
 
@@ -135,6 +175,17 @@ class Stamper:
         """
         files_in_path = self._get_path_elements(path)
 
-        for found_file in files_in_path:
-            file_license = self.license.get_license_as(found_file[0])
-            self.write_header_to_file(found_file[1], file_license)
+        for chunk in utils.chunker(files_in_path, self.PATH_CHUNKS_SIZE):
+            paths = [x[1] for x in chunk]  # Extract file paths
+            self.buffer_file_descriptors(paths, mode='r+')
+
+            for elem in chunk:
+                # apply license using file extension
+                file_license = self.license.get_license_as(elem[0])
+                # retrieve the buffered file descriptor from path
+                self.write_header_to_file(self.fd_buffer[elem[1]], file_license)
+                if verbose :
+                    print "Stamping: %s" % found_file[1]
+            self._clear_fd_buffers()
+
+        return
