@@ -57,7 +57,7 @@ class Stamper:
                 # Stamper should not apply a header on file with
                 # no language extension
                 if self.license.is_valid_file_extension(file_extension):
-                    listed_dirs.append((file_extension, file_path))
+                    listed_dirs.append([file_extension, file_path])
 
         return listed_dirs
 
@@ -84,7 +84,7 @@ class Stamper:
             if file_path:
                 file_extension = utils.get_file_extension(file_path)
                 if self.license.is_valid_file_extension(file_extension):
-                    listed_elems = [(file_extension, file_path)]
+                    listed_elems = [[file_extension, file_path]]
 
         return(listed_elems)
 
@@ -100,7 +100,8 @@ class Stamper:
         try:
             file_dump = file_descriptor.readlines()
             file_dump.append("\n\n")
-            file_desc.seek(0)  # using fd buffer, always seek(0) after each operation.
+            # using fd buffer, always seek(0) after each operation.
+            file_descriptor.seek(0)
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
@@ -136,11 +137,11 @@ class Stamper:
         return
 
 
-    def buffer_path_list(self, path_list, mode='r+'):
+    def buffer_file_descriptors(self, paths_list, mode):
         """
         """
-        for p in path_list:
-            self._get_fd_from_path(p, mode)
+        for p in paths_list:
+            self._get_fd_from_path(p, mode=mode)
 
         return
 
@@ -157,8 +158,9 @@ class Stamper:
         """
         try:
             file_dump =  self._dump_file_content(file_descriptor)
-            file_desc.writelines(header + file_dump)
-            file_desc.seek(0)
+            file_descriptor.writelines(header + file_dump)
+            # using fd buffer, always seek(0) after each operation.
+            file_descriptor.seek(0)
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
@@ -174,14 +176,16 @@ class Stamper:
         files_in_path = self._get_path_elements(path)
 
         for chunk in utils.chunker(files_in_path, self.PATH_CHUNKS_SIZE):
-            self.buffer_path_list(utils.slice_tuples_list(chunk, 1), mode='r+')
+            paths = [x[1] for x in chunk]  # Extract file paths
+            self.buffer_file_descriptors(paths, mode='r+')
 
-
-            print self.fd_buffer
-            print '\n\n'
-            for f in self.fd_buffer.items():
-                file_license = self.license.get_license_as(f[0])
-                self.write_header_to_file(f[1], file_license)
+            for elem in chunk:
+                # apply license using file extension
+                file_license = self.license.get_license_as(elem[0])
+                # retrieve the buffered file descriptor from path
+                self.write_header_to_file(self.fd_buffer[elem[1]], file_license)
                 if verbose :
                     print "Stamping: %s" % found_file[1]
             self._clear_fd_buffers()
+
+        return
