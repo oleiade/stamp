@@ -39,4 +39,13 @@ def chunker(iterable, chunksize):
     Generates an iterator which returns chunks
     of the given iterable.
     """
-    return (seq(iterable[pos:pos + chunksize] for pos in xrange(0, len(iterable), chunksize)))
+    return (iterable[pos:pos + chunksize] for pos in xrange(0, len(iterable), chunksize))
+
+
+def slice_tuples_list(tuples_list, index):
+    """
+    Returns a list of element sliced from tuples in a list.
+    example : slice_tuples_list([(1,2,3), (4,5,6)], 0) => [1,4]
+              slice_tuples_list([('abc', 'def'), ('ghi', 'jkl')], 1) => ['def', 'jkl'])
+    """
+    return [x[index] for x in tuples_list]

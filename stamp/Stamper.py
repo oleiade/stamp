@@ -26,6 +26,9 @@ class Stamper:
 
     def __init__(self, license_inst):
         """Constructor"""
+        self.MAX_CONCURRENT_FD = 128
+        self.PATH_CHUNKS_SIZE = 128
+
         self.license = license_inst
         self.fd_buffer = {}
 
@@ -86,7 +89,7 @@ class Stamper:
         return(listed_elems)
 
 
-    def _dump_file_content(self, path):
+    def _dump_file_content(self, file_descriptor):
         """
         Method dumping a file content to a list
 
@@ -95,34 +98,28 @@ class Stamper:
         file_dump = []
 
         try:
-            file_desc = open(path, 'r+')
-            file_dump = file_desc.readlines()
+            file_dump = file_descriptor.readlines()
             file_dump.append("\n\n")
-            file_desc.close()
+            file_desc.seek(0)  # using fd buffer, always seek(0) after each operation.
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
         return file_dump
 
 
-    def write_header_to_file(self, dest_filename, header):
+    def _get_fd_from_path(self, path, mode="r+"):
         """
-        Method adding a given license list at the begining
-        of a file
+        """
+        if len(self.fd_buffer) < self.MAX_CONCURRENT_FD:
+            try:
+                file_desc = open(path, mode)
+                self.fd_buffer[path] = file_desc
+            except IOError as (errno, strerror):
+                print "I/O error({0}): {1}".format(errno, strerror)
+        else:
+            return False
 
-        dest_filename           String : candidate filename which license should
-                                be applied to.
-        header                  List : Formatted, license content to write
-                                as a given destination file header.
-        """
-        try:
-            file_dump =  self._dump_file_content(dest_filename)
-            file_desc = open(dest_filename, 'w')
-            file_desc.seek(0)
-            file_desc.writelines(header + file_dump)
-            file_desc.close()
-        except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        return True
 
 
     def _clear_fd_buffers(self):
@@ -139,16 +136,31 @@ class Stamper:
         return
 
 
-    def get_fd_from_path(self, path, mode="r+"):
+    def buffer_path_list(self, path_list, mode='r+'):
         """
         """
-        try:
-            file_desc = open(path, mode)
-            self.fd_buffer[path] = file_desc
-        except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        for p in path_list:
+            self._get_fd_from_path(p, mode)
 
         return
+
+
+    def write_header_to_file(self, file_descriptor, header):
+        """
+        Method adding a given license list at the begining
+        of a file
+
+        dest_filename           String : candidate filename which license should
+                                be applied to.
+        header                  List : Formatted, license content to write
+                                as a given destination file header.
+        """
+        try:
+            file_dump =  self._dump_file_content(file_descriptor)
+            file_desc.writelines(header + file_dump)
+            file_desc.seek(0)
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
 
 
     def apply_license(self, path, verbose=False):
@@ -161,8 +173,15 @@ class Stamper:
         """
         files_in_path = self._get_path_elements(path)
 
-        for found_file in files_in_path:
-            file_license = self.license.get_license_as(found_file[0])
-            self.write_header_to_file(found_file[1], file_license)
-            if verbose :
-                print "Stamping: %s" % found_file[1]
+        for chunk in utils.chunker(files_in_path, self.PATH_CHUNKS_SIZE):
+            self.buffer_path_list(utils.slice_tuples_list(chunk, 1), mode='r+')
+
+
+            print self.fd_buffer
+            print '\n\n'
+            for f in self.fd_buffer.items():
+                file_license = self.license.get_license_as(f[0])
+                self.write_header_to_file(f[1], file_license)
+                if verbose :
+                    print "Stamping: %s" % found_file[1]
+            self._clear_fd_buffers()

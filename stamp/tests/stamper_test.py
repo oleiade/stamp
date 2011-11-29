@@ -48,7 +48,7 @@ class TestStamper(unittest.TestCase):
         mode = 'r'
 
         while i < 15:
-            self.inst.get_fd_from_path(self.test_license_path, mode)
+            self.inst._get_fd_from_path(self.test_license_path, mode)
             i += 1
 
         # Though we asked multiple file descriptor, the buffer
@@ -66,7 +66,7 @@ class TestStamper(unittest.TestCase):
         i = 0
 
         while i < 15:
-            self.inst.get_fd_from_path(self.test_license_path, mode)
+            self.inst._get_fd_from_path(self.test_license_path, mode)
             i += 15
 
         fd_buffers_dump = self.inst.fd_buffer

@@ -23,8 +23,6 @@ class TestUtils(unittest.TestCase):
 
 
     def test_remove_dotted_path_elements(self):
-        """
-        """
         self.assertIsNotNone(utils.remove_dotted_path_elements(self.nodotted_paths_list))
         self.assertIsNotNone(utils.remove_dotted_path_elements(self.dotted_paths_list))
 
