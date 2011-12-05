@@ -33,6 +33,17 @@ class Stamper:
         self.fd_buffer = {}
 
 
+    def _has_shebang(self, file_content_list):
+        """
+        """
+        first_line = str(file_content_list[0]).strip()
+
+        if first_line[0:3] == "#!/":
+            return first_line
+        else:
+            return None
+
+
     def _get_folder_files(self, folder, exclude_dotted=True):
         """
         Given a folder, recursively retrieves contained files
@@ -158,7 +169,14 @@ class Stamper:
         """
         try:
             file_dump =  self._dump_file_content(file_descriptor)
-            file_descriptor.writelines(header + file_dump)
+            # only apply header if
+
+            shebang = self._has_shebang(file_dump)
+            # Applying license only if file has a shebang
+            if shebang:
+                file_dump = file_dump[1:]
+
+            file_descriptor.writelines([shebang or "" + '\n'] + header + file_dump)
             # using fd buffer, always seek(0) after each operation.
             file_descriptor.seek(0)
         except IOError as (errno, strerror):
