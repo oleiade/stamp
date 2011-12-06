@@ -90,7 +90,7 @@ class Stamper:
         if os.path.isdir(path):
             listed_elems = self._get_folder_files(path, exclude_dotted)
         else:
-            file_path = utils.remove_dotted_path(path) if exclude_dotted \
+            file_path = utils.remove_dotted_path_elements(path) if exclude_dotted \
                                                        else path
             if file_path:
                 file_extension = utils.get_file_extension(file_path)

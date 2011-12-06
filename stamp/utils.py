@@ -1,4 +1,21 @@
 #!/usr/bin/env python
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+# 
+#  http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
 
 import os
 
@@ -24,6 +41,9 @@ def remove_dotted_path_elements(path):
     path_elem         List/String : path element where
     to search and remove those who begins with a dot.
     """
+    if isinstance(path, str):
+        path = [path]
+
     # Encapsulating string in a list in order to keep dry
     # when path is a string. Selecting explicitly last part
     # of the path in order to avoir current working dir shortcut (./foo_bar)
@@ -31,7 +51,7 @@ def remove_dotted_path_elements(path):
         if elem.startswith('.'):
             del path[counter]
 
-    return path
+    return path[0] if len(path) == 1 else path
 
 
 def chunker(iterable, chunksize):
@@ -49,3 +69,4 @@ def slice_tuples_list(tuples_list, index):
               slice_tuples_list([('abc', 'def'), ('ghi', 'jkl')], 1) => ['def', 'jkl'])
     """
     return [x[index] for x in tuples_list]
+
