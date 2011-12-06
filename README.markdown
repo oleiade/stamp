@@ -1,23 +1,45 @@
 StampIt
 =======
 
-A simple and extensible Python util which applies recursively to a given file, list of files, or list of directories a given License (Apache, BSD, GPL...).
+A simple and extensible Python util which applies recursively files or/and folder content a given (raw content) license
+such as Apache, BSD, GPL... It automatically manages languages comment style. Though every languages are not managed, you'll
+be able to add yours into the package constants.py soon (tag 0.0.3).
 
-### Still Missing
-Under heavy development, major features are still missing, or may be buggy:
-+ Permit License class easy subclassing in order to manage licenses as classes instead of raw files : example would be, you'd wanna bring a new kind of license to the util, you would only have to subclass License mother class. And that would be it.
-+ Be able to change a yet applied license (apache for example), to another one (bsd for example)
-+ Generically detect languages specifications in order not to override them while patching files with desired license. Such as '#!/usr/bin/env python\n#-* coding utf-8 *-#" thing in Python.
-+ Anyone that you could notice
+It's still in an early state of development (first release); and only works as a one shot patching at the moment. Already 
+patched file detection and incremental patching will be managed in the next release.
 
-### If you'd wanna test it
-Just clone this repository, and you're done, you'll be able to:
-    ./license-applier.py <file/dir1,...,file/dir> license_file
-    > license_file being containing a license text content
-I'll make a clean package later.
+Installation
+------------
+```bash
+# python setup.py build
+# python setup.py install
+```
+Project will be pushed to pypi when more mature (approximatively 0.0.3/0.0.4 release tag)
 
 
-### Coming improvements
-+ more tests
-+ packaging
+Usage
+-----
+```bash
+$ stamp license_file file/folders ...
+```
+license_file arg has to be a file suffixed with the extension '.lic'. It should contain the raw license content you'd wanna
+apply to the content of
+file/folders you've specified.
+
+### Options
++ -v verbose mode
+
+### Nota Bene
+Example license files are given in the project license_files folder, take a look to their content in order to create 
+yours.
+
+
+
+Incoming improvements
+---------------------
++ Incremental patching (managing already patched files, changing an already applied license)
++ Better performances on large stack of files to patch
++ File/folders scanning to fine existing license and beautiful verbose output
++ more robust testing
 + better documentation : how to use/participate/extend
+incoming features and bugs are referenced in the Github issue tracker of the project.
