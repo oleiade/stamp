@@ -11,8 +11,8 @@ patched file detection and incremental patching will be managed in the next rele
 Installation
 ------------
 ```bash
-# python setup.py build
-# python setup.py install
+python setup.py build
+python setup.py install
 ```
 Project will be pushed to pypi when more mature (approximatively 0.0.3/0.0.4 release tag)
 
@@ -20,7 +20,7 @@ Project will be pushed to pypi when more mature (approximatively 0.0.3/0.0.4 rel
 Usage
 -----
 ```bash
-$ stamp license_file file/folders ...
+stamp license_file file/folders ...
 ```
 license_file arg has to be a file suffixed with the extension '.lic'. It should contain the raw license content you'd wanna
 apply to the content of
