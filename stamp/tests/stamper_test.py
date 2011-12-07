@@ -35,8 +35,6 @@ class TestStamper(unittest.TestCase):
 
         self.assertIsInstance(nodotted_folder_content, list)
         self.assertIsInstance(dotted_folder_content, list)
-        self.assertTuplesList(nodotted_folder_content)
-        self.assertTuplesList(dotted_folder_content)
 
         self.assertEqual(len(nodotted_folder_content), folder_total_files - folder_dotted_files)  # 2 == 2
         # Only dotted files using an extension should pass
@@ -83,4 +81,3 @@ class TestStamper(unittest.TestCase):
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestStamper)
 unittest.TextTestRunner(verbosity=2).run(suite)
-
