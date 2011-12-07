@@ -15,6 +15,11 @@ class TestStamper(unittest.TestCase):
             for t in tuples_list:
                 self.assertIsInstance(t, tuple)
 
+    def assertListsList(self, lists_list):
+        if lists_list and len(lists_list) > 0:
+            for t in lists_list:
+                self.assertIsInstance(t, list)
+
     def setUp(self):
         self.test_content_path = os.path.join(os.path.dirname(__file__), 'test_content')
         self.test_license_path = os.path.join(self.test_content_path, 'valid_test_license_file.txt')
@@ -35,6 +40,8 @@ class TestStamper(unittest.TestCase):
 
         self.assertIsInstance(nodotted_folder_content, list)
         self.assertIsInstance(dotted_folder_content, list)
+        self.assertListsList(nodotted_folder_content)
+        self.assertListsList(dotted_folder_content)
 
         self.assertEqual(len(nodotted_folder_content), folder_total_files - folder_dotted_files)  # 2 == 2
         # Only dotted files using an extension should pass
