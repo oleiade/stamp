@@ -47,7 +47,7 @@ class Stamper:
     def _get_folder_files(self, folder, exclude_dotted=True):
         """
         Given a folder, recursively retrieves contained files
-        returns a list of tuples (file extension, file path).
+        returns a list of lists ([file extension, file path]).
 
         NB : Shall not be used independtly.
 
