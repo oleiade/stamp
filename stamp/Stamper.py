@@ -176,7 +176,7 @@ class Stamper:
             if shebang:
                 file_dump = file_dump[1:]
 
-            file_descriptor.writelines([shebang or "" + '\n'] + header + file_dump)
+            file_descriptor.writelines([shebang or "" + '\n\n'] + header + file_dump)
             # using fd buffer, always seek(0) after each operation.
             file_descriptor.seek(0)
         except IOError as (errno, strerror):
