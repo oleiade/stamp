@@ -47,7 +47,7 @@ class Stamper:
     def _get_folder_files(self, folder, exclude_dotted=True):
         """
         Given a folder, recursively retrieves contained files
-        returns a list of tuples (file extension, file path).
+        returns a list of lists ([file extension, file path]).
 
         NB : Shall not be used independtly.
 
@@ -176,7 +176,7 @@ class Stamper:
             if shebang:
                 file_dump = file_dump[1:]
 
-            file_descriptor.writelines([shebang or "" + '\n'] + header + file_dump)
+            file_descriptor.writelines([shebang or "" + '\n\n'] + header + file_dump)
             # using fd buffer, always seek(0) after each operation.
             file_descriptor.seek(0)
         except IOError as (errno, strerror):
