@@ -6,9 +6,9 @@
 #  to you under the Apache License, Version 2.0 (the
 #  "License"); you may not use this file except in compliance
 #  with the License.  You may obtain a copy of the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing,
 #  software distributed under the License is distributed on an
 #  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,11 +19,13 @@
 
 import os
 
-def get_file_extension(path):
+def get_file_extension(file_path):
     """
     Extracts extension from file path.
+
+    file_path           String : path to fetch extension from
     """
-    _, extension = os.path.splitext(path)
+    _, extension = os.path.splitext(file_path)
 
     # return file_extension without it's
     # starting point
@@ -38,8 +40,9 @@ def remove_dotted_path_elements(path):
     from a given path element list or string,
     which could, for example, have been yielded by os.walk.
 
-    path_elem         List/String : path element where
-    to search and remove those who begins with a dot.
+    path                List/String : path element where
+                        to search and remove those which
+                        begins with a dot.
     """
     if isinstance(path, str):
         path = [path]
@@ -58,6 +61,15 @@ def chunker(iterable, chunksize):
     """
     Generates an iterator which returns chunks
     of the given iterable.
+
+    Nota Bene : won't fill the last chunk with
+    None or whatever in case chunksize is not a
+    multiple of the iterable size.
+
+    iterable            Iterable : iterable structure to cut into
+                        sub-parts.
+    chunksize           Int : size of sub-parts the iterable should
+                        be cut into.
     """
     return (iterable[pos:pos + chunksize] for pos in xrange(0, len(iterable), chunksize))
 
