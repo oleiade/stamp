@@ -25,6 +25,7 @@ class License:
     """
 
     def __init__(self, license_file):
+        """Constructor"""
         self.ext = [item for subl in constants.LANG_EXTENSIONS.values()\
                          for item in subl]
         self.license_file = license_file
@@ -141,7 +142,7 @@ class License:
         from instance buffer licenses list if already computed.
         formats it and adds it to buffer if not.
 
-        lang            String : Language name to use comment pattern
+        extension       String : extension to get formatted license
                         from.
         """
         if extension.lower() in self.buffered_licenses.keys():
