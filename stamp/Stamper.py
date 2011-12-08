@@ -20,9 +20,11 @@ import os
 import utils
 
 class Stamper:
-    """ Class defining methods allowing to
+    """
+    Class defining methods allowing to
     create a language specific commented license
-    in order to apply it as a file header"""
+    in order to apply it as a file header
+    """
 
     def __init__(self, license_inst):
         """Constructor"""
@@ -33,10 +35,17 @@ class Stamper:
         self.fd_buffer = {}
 
 
-    def _has_shebang(self, file_content_list):
+    def _has_shebang(self, file_content):
         """
+        Checks if a file, given as a list, contains
+        a shebang instruction as it's first line.
+        If it does, returns the file first line in order
+        to reinsert it in the processed files later. Else
+        it will return None.
+
+        file_content            List : file to test content list
         """
-        first_line = str(file_content_list[0]).strip()
+        first_line = str(file_content[0]).strip()
 
         if first_line[0:3] == "#!/":
             return first_line
@@ -121,7 +130,15 @@ class Stamper:
 
     def _get_fd_from_path(self, path, mode="r+"):
         """
+        Opens a file_descriptors from a given path, using
+        a given opening mode. Adds it to the stamper class
+        file descriptor buffer.
+
+        path                    String : file path to buffer a file
+                                descriptor from.
+        mode                    String : file path descriptor mode to use.
         """
+        # Checking there is a free slot in the fd buffer
         if len(self.fd_buffer) < self.MAX_CONCURRENT_FD:
             try:
                 file_desc = open(path, mode)
@@ -134,6 +151,21 @@ class Stamper:
         return True
 
 
+    def buffer_file_descriptors(self, paths_list, mode):
+        """
+        Recursively open file descriptor and add
+        the paths pointed by the paths_list
+        to the object file descriptor buffer.
+
+        paths_list              List :
+        mode                    string :
+        """
+        for p in paths_list:
+            self._get_fd_from_path(p, mode=mode)
+
+        return
+
+
     def _clear_fd_buffers(self):
         """
         """
@@ -144,15 +176,6 @@ class Stamper:
                 print "I/O error({0}: {1}".format(errno.strerror)
 
         self.fd_buffer = {}
-
-        return
-
-
-    def buffer_file_descriptors(self, paths_list, mode):
-        """
-        """
-        for p in paths_list:
-            self._get_fd_from_path(p, mode=mode)
 
         return
 
