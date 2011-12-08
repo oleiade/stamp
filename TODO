@@ -1,2 +1,6 @@
 * Create an option to choose whether if we want to store the patched file
 informations in a .stamp file in each folder walked through or in a unique file (which destination path would be given as an option too)
+
+* Have to verify that the control structures such as if are evaluated 
+from left to right. In order to be sure that the test on Stamper.py
+line 106 is valid and efficient.
