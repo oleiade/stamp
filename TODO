@@ -1,0 +1,2 @@
+* Create an option to choose whether if we want to store the patched file
+informations in a .stamp file in each folder walked through or in a unique file (which destination path would be given as an option too)
