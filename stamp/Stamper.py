@@ -18,6 +18,7 @@
 import os
 
 import utils
+from constants import OPTION_TYPE_FILE, OPTION_TYPE_FOLDER
 
 class Stamper:
     """
@@ -85,7 +86,8 @@ class Stamper:
         return listed_dirs
 
 
-    def _get_path_elements(self, path, exclude_dotted=True):
+    def _get_path_elements(self, path, path_type=None,
+                           exclude_dotted=True):
         """
         Recursively retrieves a path files.
         returns a list of lists -- [file extension, file path]
@@ -93,15 +95,23 @@ class Stamper:
         else uses the given path file.
 
         path                    String : path to retrieve files from.
+        path_type               Int : constant taken from constants, defines
+                                the path type(file or folder). Two possible
+                                values : OPEN_TYPE_FOLDER or OPEN_TYPE_FILE.
         exclude_dotted          Boolean : Wheter to ignore paths beggining
                                 with a dot while walking dirs.
                                 Ex : .git .svn .emacs
         """
         listed_elems = []
 
-        if os.path.isdir(path):
+        # As args are evaluated from left to right, if
+        # path_type is given and is equal to constants folder macro
+        # then os.path.isdir(path) won't be executed.
+        if path_type == OPTION_TYPE_FOLDER or os.path.isdir(path):
             listed_elems = self._get_folder_files(path, exclude_dotted)
         else:
+            # as we already know it's a file, go on and check for common
+            # idioms.
             file_path = utils.remove_dotted_path_elements(path) if exclude_dotted \
                                                        else path
             if file_path:
@@ -216,15 +226,23 @@ class Stamper:
             print "I/O error({0}): {1}".format(errno, strerror)
 
 
-    def apply_license(self, path, verbose=False):
+    def apply_license(self, path, path_type=None,
+                      verbose=False):
         """
         Applies a given license (class instance) to a given path.
 
         path                    String : File or dir, License should apply to.
+        path_type               Int : Used to save system calls (os.path.isdir)
+                                when we already know the given path kind (using
+                                the stamp cmdline_parsing for example). constant
+                                taken from constants, defines
+                                the path type(file or folder). Two possible
+                                values : OPEN_TYPE_FOLDER or OPEN_TYPE_FILE.
+
         verbose                 Bool : Whether should display it's actions on
                                 stdout or not.
         """
-        files_in_path = self._get_path_elements(path)
+        files_in_path = self._get_path_elements(path, path_type)
 
         for chunk in utils.chunker(files_in_path, self.PATH_CHUNKS_SIZE):
             paths = [x[1] for x in chunk]  # Extract file paths
