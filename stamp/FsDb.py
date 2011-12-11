@@ -61,12 +61,12 @@ class FsDb(object):
         """
         """
         try:
-            db_key = self.__get_or_create_key(key)
+            self.__set_key(key, value)
+            print self.__get_or_create_key(key)
         except KeyError:
-            pass
-        except ValueError:
-            pass
+            print "Invalid key name or pattern when trying to create a key/value pair."
 
+        return
 
     def read(self, key):
         """
@@ -130,6 +130,25 @@ class FsDb(object):
         return
 
 
+    def __compute_key(self, key):
+        """
+        Returns a container/key pair computed
+        from a given string. Enables to query the
+        database using a redis-like syntax.
+
+        a key should canonically look like:
+                "container:key"
+                for ex:
+                "paths:/tmp/thisisafirsttestpath"
+        """
+        try:
+            computed_container, computed_key = key.split(':')
+        except ValueError:
+            print "Invalid pattern used for key creation. \
+            valid should look like table:key"
+
+        return computed_container, computed_key
+
 
     def __get_or_create_key(self, key):
         """
@@ -146,14 +165,26 @@ class FsDb(object):
         datas, you should use the methode like :
                 self.__create_key("paths:path_to_the_file")
         """
-        try:
-            computed_table, computed_key = key.split(':')
-        except ValueError:
-            print "Invalid pattern used for key creation. \
-            valid should look like table:key"
-            sys.exit()
+        computed_container, computed_key = self.__compute_key(key)
 
-        db_table = self.db[CONTAINERS_KEYS].setdefault(computed_table, {})
-        db_key = self.db[CONTAINERS_KEYS][computed_table].setdefault(computed_key, {})
+        db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
+        db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
 
         return db_key
+
+
+    def __set_key(self, key, value):
+        """
+        Updates a database key with value.
+        """
+        computed_container, computed_key = self.__compute_key(key)
+
+        try:
+            if computed_container and computed_key:
+                self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
+            elif computed_container:
+                self.db[CONTAINERS_KEYS][computed_container] = value
+        except IndexError:
+            print "Whether the given container or key does not exist"
+
+        return
