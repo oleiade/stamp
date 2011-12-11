@@ -60,7 +60,12 @@ class FsDb(object):
     def create(self, key, value):
         """
         """
-        pass
+        try:
+            db_key = self.__get_or_create_key(key)
+        except KeyError:
+            pass
+        except ValueError:
+            pass
 
 
     def read(self, key):
@@ -78,7 +83,7 @@ class FsDb(object):
     def delete(self, key):
         """
         """
-        
+        pass
 
     def vaccum(self):
         """
@@ -148,6 +153,7 @@ class FsDb(object):
             valid should look like table:key"
             sys.exit()
 
-        mutable_key = self.db[CONTAINERS_KEYS][computed_table][computed_key] = {}
+        db_table = self.db[CONTAINERS_KEYS].setdefault(computed_table, {})
+        db_key = self.db[CONTAINERS_KEYS][computed_table].setdefault(computed_key, {})
 
-        return mutable_key
+        return db_key
