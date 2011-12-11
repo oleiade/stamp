@@ -8,3 +8,5 @@ line 106 is valid and efficient.
 * Would be great to be able to buffer the already computed keys
 from the fs database in order not to convert it's redis-like syntax
 to a dict compatible tree each time a key is queried.
+
+* manage containers call in read without semicolons, example : db.read('paths') should work. For the moment user have to pass db.read('paths:') in order for it to work.
