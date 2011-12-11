@@ -5,8 +5,11 @@ import simplejson as json
 
 from datetime import datetime
 
-
 from constants import STAMP_DB_FILENAME
+
+
+META_KEYS = "meta"
+CONTAINERS_KEYS = "containers"
 
 class FsDb(object):
     """
@@ -75,8 +78,7 @@ class FsDb(object):
     def delete(self, key):
         """
         """
-        pass
-
+        
 
     def vaccum(self):
         """
@@ -91,12 +93,44 @@ class FsDb(object):
         minimal values to it, if not yet present.
         """
         self.db = {
-            'owner': self.user,
-            'storage_file_path': self.storage_file_path,
-            'created_at': datetime.now().strftime("%d/%m/%Y"),
-            'last_updated_at': datetime.now().strftime("%d/%m/%Y"),
+            META_KEYS : {
+                'owner': self.user,
+                'storage_file_path': self.storage_file_path,
+                'created_at': datetime.now().strftime("%d/%m/%Y"),
+                'last_updated_at': datetime.now().strftime("%d/%m/%Y"),
+            },
+            CONTAINERS_KEYS : {
+                'licenses': {},
+                'paths': {},
+            },
         }
         self.dump()
 
         return
 
+
+    def __get_or_create_key(self, key):
+        """
+        Get or creates a key in one of the containers dict
+        of the database and returns it as a mutable object.
+
+        Nota : the META informations were intended to be immutable.
+
+        Keys should always be prefixed with a table name and
+        can not be written at the root of the database tables root.
+        Keys should be created using a redis-like pattern table:key.
+
+        for example to create a key in order to store a path
+        datas, you should use the methode like :
+                self.__create_key("paths:path_to_the_file")
+        """
+        try:
+            computed_table, computed_key = key.split(':')
+        except ValueError:
+            print "Invalid pattern used for key creation. \
+            valid should look like table:key"
+            sys.exit()
+
+        mutable_key = self.db[CONTAINERS_KEYS][computed_table][computed_key] = {}
+
+        return mutable_key
