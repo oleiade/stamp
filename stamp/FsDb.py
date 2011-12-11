@@ -8,21 +8,15 @@ from datetime import datetime
 
 from constants import STAMP_DB_FILENAME
 
-class FsDb:
+class FsDb(object):
     """
     """
     def __init__(self):
         """Constructor"""
         self.user = os.environ["USER"]
         self.user_home = os.environ["HOME"]
-        self.storage_path = self.user_home + STAMP_DB_FILENAME
-        self.storage_file = open(self.storage_path, 'r+')
+        self.storage_file_path = self.user_home + '/' + STAMP_DB_FILENAME
         self.db = {}  # Fs database memory dump
-
-
-    def __del__(self):
-        """Destructor"""
-        self.storage_file.close()
 
 
     def load(self, path=None):
@@ -31,8 +25,11 @@ class FsDb:
         path            String : path to the file to load
                         database from.
         """
+        fp = open(self.storage_file_path, 'r+')
+
         try:
-            self.db = json.load(self.storage_file)
+            self.db = json.load(fp)
+            fp.close()
         except IOError as (strerror, errno):
             print "I/O error({0}): {1}".format(errno, strerror)
 
@@ -45,13 +42,12 @@ class FsDb:
         obj             String / File : Input to dump database from.
                         file path (string) or a yet openend file descriptor.
         """
-        f = self.storage_file
-
-        if file_path:
-            f = open(file_path, 'r+')
+        f = file_path if file_path else self.storage_file_path
+        fp = open(f, 'w')
 
         try:
-            json.dump(self.db, f)
+            json.dump(self.db, fp, indent=4)
+            fp.close()
         except IOError as (strerror, errno):
             print "I/O error({0}): {1}".format(errno, strerror)
 
@@ -82,7 +78,13 @@ class FsDb:
         pass
 
 
-    def init_db(self):
+    def vaccum(self):
+        """
+        """
+        pass
+
+
+    def init(self):
         """
         Initialize the database structure with a minimal
         skeleton. Creates the storage file, and dumps
@@ -90,10 +92,11 @@ class FsDb:
         """
         self.db = {
             'owner': self.user,
-            'storage_path': self.storage_path,
-            'created_at': datetime.now(),
-            'last_updated_at': datetime.now(),
+            'storage_file_path': self.storage_file_path,
+            'created_at': datetime.now().strftime("%d/%m/%Y"),
+            'last_updated_at': datetime.now().strftime("%d/%m/%Y"),
         }
         self.dump()
 
         return
+

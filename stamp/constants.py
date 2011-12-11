@@ -15,6 +15,7 @@
 # limitations under the License.
 
 STAMP_DB_FILENAME = '.stamp'
+STAMP_DB_DELIMITER = ':'
 
 OPTION_TYPE_FILE = 0
 OPTION_TYPE_FOLDER = 1
