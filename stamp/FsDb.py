@@ -62,7 +62,6 @@ class FsDb(object):
         """
         try:
             self.__set_key(key, value)
-            print self.__get_or_create_key(key)
         except KeyError:
             print "Invalid key name or pattern when trying to create a key/value pair."
 
