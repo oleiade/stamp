@@ -80,7 +80,10 @@ class FsDb(object):
     def update(self, key, value):
         """
         """
-        pass
+        try:
+            self.__set_key(key, value)
+        except KeyError:
+            print "Invalid key name or pattern when trying to create a key/value pair."
 
 
     def delete(self, key):
