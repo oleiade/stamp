@@ -109,6 +109,23 @@ class FsDb(object):
         return
 
 
+    def update_meta(self, meta=None):
+        """
+        Updates the filesystem database meta datas with
+        brand new dict taken from params, or updates
+        it using the environement.
+        """
+        if meta:
+            self.db[META_KEYS] = meta
+        else:
+            self.db[META_KEYS]["owner"] = self.user
+            self.db[META_KEYS]["storage_file_path"] = self.storage_file_path
+            self.db[META_KEYS]["last_updated_at"] = datetime.now().strftime("%d/%m/%Y")
+
+        return
+
+
+
     def __get_or_create_key(self, key):
         """
         Get or creates a key in one of the containers dict
