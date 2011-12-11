@@ -70,8 +70,12 @@ class FsDb(object):
     def read(self, key):
         """
         """
-        pass
+        try:
+            value = self.__get_or_create_key(key)
+        except KeyError:
+            print "The key does not exist in databases containers"
 
+        return value
 
     def update(self, key, value):
         """
