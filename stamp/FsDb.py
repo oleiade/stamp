@@ -42,6 +42,10 @@ class FsDb(object):
 
     def load(self, path=None):
         """
+        Loads a database dump from JSON file. If path param
+        is None, will compute the path where it's stored from
+        the environement, following the $HOME/STAMP_DB_FILENAME
+        pattern.
 
         path            String : path to the file to load
                         database from.
@@ -57,13 +61,17 @@ class FsDb(object):
         return
 
 
-    def dump(self, file_path=None):
+    def dump(self, path=None):
         """
+        Dumps a database dump file to the in-memory FsDb db
+        class attribute. If path param is None, will compute
+        the path where it's stored from the environement,
+        following the $HOME/STAMP_DB_FILENAME pattern.
 
-        obj             String / File : Input to dump database from.
+        path            String : Input to dump database from.
                         file path (string) or a yet openend file descriptor.
         """
-        f = file_path if file_path else self.storage_file_path
+        f = path if path else self.storage_file_path
         fp = open(f, 'w')
 
         try:
