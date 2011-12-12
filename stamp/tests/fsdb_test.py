@@ -39,6 +39,31 @@ class TestFsDb(unittest.TestCase):
         self.assertIn(CONTAINERS_KEYS, loaded_db_dump)
 
 
+    def test_update_meta_from_env(self):
+        """Tests the basic meta is correctly initialized using env"""
+        self.fsdb.init()
+        self.fsdb.update_meta()
+
+        self.assertIsInstance(self.fsdb.db[META_KEYS], dict)
+        self.assertEqual(self.fsdb.db[META_KEYS]["owner"], os.environ["USER"])
+        self.assertEqual(self.fsdb.db[META_KEYS]["storage_file_path"], STAMP_DB_PATH)
+
+
+    def test_update_meta_from_dict(self):
+        self.fsdb.init()
+        meta_dump = self.fsdb.db[META_KEYS]
+        new_meta = {
+            'owner': 'test',
+            'storage_file_path': 'test',
+            'test_key': 'test',
+        }
+
+        self.fsdb.update_meta(new_meta)
+        self.assertIn(META_KEYS, self.fsdb.db)
+        self.assertIsInstance(self.fsdb.db[META_KEYS], dict)
+        self.assertEqual(self.fsdb.db[META_KEYS], new_meta)
+
+
     def tearDown(self):
         if os.path.exists(STAMP_DB_PATH):
             os.remove(STAMP_DB_PATH)
