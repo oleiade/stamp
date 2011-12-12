@@ -14,6 +14,11 @@ setup(
     keywords = "stamp license licenser open-source",
     url = "http://github.com/oleiade/stamp",
 
+    # Requirements
+    install_requires = [
+        'simplejson'
+    ],
+
     test_suite = "nose.collector",
     tests_require = "nose",
 
