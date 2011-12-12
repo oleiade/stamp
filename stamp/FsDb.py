@@ -85,6 +85,14 @@ class FsDb(object):
 
     def create(self, key, value):
         """
+        Creates a key/value pair in the database. A container
+        has to be specified, using the redis-like FsDb syntax:
+        container:key.
+        Cf : __get_or_create docstring.
+
+        key             String : key to create or get, following the
+                        redis-like pattern (container:key)
+        value           _ : any value type to store at database container key
         """
         self.__get_or_create_key(key)
         self.__set_key(key, value)
@@ -94,6 +102,10 @@ class FsDb(object):
 
     def read(self, key):
         """
+        Retrieves a value from a database container key.
+
+        key             String : key to retrieve value from, following the
+                        redis-like pattern (container:key)
         """
         value = self.__get_or_create_key(key)
 
@@ -102,6 +114,13 @@ class FsDb(object):
 
     def update(self, key, value):
         """
+        Updates an existing key value with the one given
+        as param. If key does not already exist, will result
+        in a KeyError.
+
+        key             String : key which value has to be updated,
+                        following the redis-like pattern (container:key)
+        value           _ : any value type to store at database container key
         """
         self.__set_key(key, value)
 
@@ -109,6 +128,10 @@ class FsDb(object):
 
     def delete(self, key):
         """
+        Removes the value stored at the given key
+        param from the database.
+        key             String : key to delete, following the
+                        redis-like pattern (container:key)
         """
         self.__del_key(key)
 
@@ -116,14 +139,15 @@ class FsDb(object):
 
     def vaccum(self):
         """
+        FIXME tag0.0.3
         """
         pass
 
 
     def init(self):
         """
-        Initialize the database structure with a minimal
-        skeleton. Creates the storage file, and dumps
+        Initialize the database structure in-memory with
+        a minimal skeleton. Creates the storage file, and dumps
         minimal values to it, if not yet present.
         """
         self.db = {
@@ -148,6 +172,9 @@ class FsDb(object):
         Updates the filesystem database meta datas with
         brand new dict taken from params, or updates
         it using the environement.
+
+        meta            Dict : meta datas to set into database.
+                        overrides stored datas.
         """
         if meta:
             self.db[META_KEYS] = meta
@@ -169,6 +196,9 @@ class FsDb(object):
                 "container:key"
                 for ex:
                 "paths:/tmp/thisisafirsttestpath"
+
+        key             String : key to create or get, following the
+                        redis-like pattern (container:key)
         """
         try:
             computed_container, computed_key = key.split(':')
@@ -193,6 +223,9 @@ class FsDb(object):
         for example to create a key in order to store a path
         datas, you should use the methode like :
                 self.__create_key("paths:path_to_the_file")
+
+        key             String : key to create or get, following the
+                        redis-like pattern (container:key)
         """
         computed_container, computed_key = self.__compute_key(key)
 
@@ -204,7 +237,12 @@ class FsDb(object):
 
     def __set_key(self, key, value):
         """
-        Updates a database key with value.
+        Updates a database key with value. Fails if
+        pointed key doesn't already exist.
+
+        key             String : key which value has to be updated,
+                        following the redis-like pattern (container:key)
+        value           _ : any value type to store at database container key
         """
         computed_container, computed_key = self.__compute_key(key)
 
@@ -221,7 +259,11 @@ class FsDb(object):
 
     def __del_key(self, key):
         """
-        Removes a database key.
+        Removes a database container key. Fails
+        if key doesn't already exist.
+
+        key             String : key to delete, following the
+                        redis-like pattern (container:key)
         """
         computed_container, computed_key = self.__compute_key(key)
 
