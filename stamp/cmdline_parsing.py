@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import os
+import sys
 import argparse
 
 from stamp import utils
+from stamp.constants import OPTION_TYPE_FILE, OPTION_TYPE_FOLDER
 
 def gen_arg_parser():
     """
@@ -52,6 +54,25 @@ def assert_license_file_format(args):
     return passes, error_message
 
 
+def markup_options_file_folder_types(args):
+    """
+    Returns files and folders to patch taken from
+    command line options as a list of tuples containing
+    each the file/folder path, and it's type macro.
+    """
+    new_paths = []
+
+    for p in args.paths:
+        # Checking if path is a dir or not.
+        # might be a more elegant way to do this
+        # (with less system calls)
+        path_type = OPTION_TYPE_FOLDER if os.path.isdir(p) else OPTION_TYPE_FILE
+        new_paths.append((p, path_type))
+
+    args.paths = new_paths
+
+    return args
+
 def compute_args(arg_parser):
     """
     Gets the arguments from the command line and checks
@@ -61,8 +82,11 @@ def compute_args(arg_parser):
     attached to the license file name. (incoming feature)
     """
     args = arg_parser.parse_args()
-
     assertions = [assert_license_file_format]
+
+    # Mark files/folders retrieved from command
+    # with their type.
+    markup_options_file_folder_types(args)
 
     for assertion in assertions:
         passes, error_msg = assertion(args)

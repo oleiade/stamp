@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+STAMP_DB_FILENAME = '.stamp'
+STAMP_DB_DELIMITER = ':'
+
+OPTION_TYPE_FILE = 0
+OPTION_TYPE_FOLDER = 1
+
 LANG_EXTENSIONS = {
     "c": ["c", "cc", "cpp", "h", "hh", "hpp"],
     "c++": ["c", "cc", "cpp", "h", "hh", "hpp"],

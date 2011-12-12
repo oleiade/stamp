@@ -30,6 +30,10 @@ def main():
         lic = License.License(args.license_file)
         stamper = Stamper.Stamper(lic)
         for path in args.paths:
-            stamper.apply_license(path, verbose=args.verbose)
+            # as args.paths has been previously flagged with
+            # it's elements type: path[0] = given path
+            #                     path[1] = path kind (file or folder)
+            stamper.apply_license(path[0], path_type=path[1],
+                                  verbose=args.verbose)
 
     print "Done"
