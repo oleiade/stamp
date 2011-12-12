@@ -78,19 +78,17 @@ class FsDb(object):
 
         return value
 
+
     def update(self, key, value):
         """
         """
-        try:
-            self.__set_key(key, value)
-        except KeyError:
-            print "Invalid key name or pattern when trying to create a key/value pair."
+        self.__set_key(key, value)
 
 
     def delete(self, key):
         """
         """
-        pass
+        self.__del_key(key)
 
     def vaccum(self):
         """
@@ -193,5 +191,22 @@ class FsDb(object):
                 self.db[CONTAINERS_KEYS][computed_container] = value
         except KeyError:
             print "Whether the given container or key does not exist"
+
+        return
+
+
+    def __del_key(self, key):
+        """
+        Removes a database key.
+        """
+        computed_container, computed_key = self.__compute_key(key)
+
+        try:
+            if computed_container and computed_key:
+                del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
+            elif computed_container:
+                del(self.db[CONTAINERS_KEYS][computed_container]
+        except KeyError:
+            print "Whether the computed key or container doesn't exist in database"
 
         return
