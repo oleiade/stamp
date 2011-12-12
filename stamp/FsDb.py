@@ -32,13 +32,36 @@ class FsDb(object):
     that the container name prefixes the key. Though container: will create a new
     container, creating a single :key is not possible.
     """
-    def __init__(self):
-        """Constructor"""
+    def __init__(self, db_path=None):
+        """
+        Constructor
+
+        db_path         String : path to load database content from
+                        at instantiation.
+        """
         self.user = os.environ["USER"]
         self.user_home = os.environ["HOME"]
-        self.storage_file_path = self.user_home + '/' + STAMP_DB_FILENAME
-        self.db = {}  # Fs database memory dump
+        self.storage_file_path = db_path if db_path else self.user_home + '/' + STAMP_DB_FILENAME
 
+        if os.path.exists(self.storage_file_path):
+            # if db_path has been given, then use it to load
+            # the db dump, else it will naturally use the
+            # storage_file_path
+            self.load(db_path)
+        else:
+            self.db = {}  # Fs database memory dump
+            self.init()
+
+
+    def __del__(self):
+        """
+        Destructor. Basically dumps the database operations
+        to the database file before garbage collection operations.
+
+        db_path         String : path to load database content from
+                        at instantiation.
+        """
+        self.dump()
 
     def load(self, path=None):
         """
@@ -271,7 +294,7 @@ class FsDb(object):
             if computed_container and computed_key:
                 del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
             elif computed_container:
-                del(self.db[CONTAINERS_KEYS][computed_container]
+                del(self.db[CONTAINERS_KEYS][computed_container])
         except KeyError:
             print "Whether the computed key or container doesn't exist in database"
 
