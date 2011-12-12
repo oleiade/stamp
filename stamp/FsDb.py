@@ -13,6 +13,24 @@ CONTAINERS_KEYS = "containers"
 
 class FsDb(object):
     """
+    A CRUD mini key/value database system, dedicated to store
+    datas about a filesystem structure. For example, used by the
+    Stamper class, it will store every needed informations about
+    walked through paths and patched files, licenses used to patched
+    it and so on...
+
+    Stores itself in user home directory as STAMP_DB_FILENAME, using
+    JSON format. It's automatic behavior is to try to load itself from
+    that place when instantiated (though a specific place can even be given
+    to load method). If no db is found at the specified place, a basic one
+    will be created with few META keys and basic CONTAINERS.
+
+    Every operations are computed in ram memory, and dumped into the database
+    file on __del__, or on explicit call to dump method.
+
+    Keys syntax is following a redis-like pattern : container:key, it is important
+    that the container name prefixes the key. Though container: will create a new
+    container, creating a single :key is not possible.
     """
     def __init__(self):
         """Constructor"""
@@ -60,21 +78,16 @@ class FsDb(object):
     def create(self, key, value):
         """
         """
-        try:
-            self.__get_or_create_key(key)
-            self.__set_key(key, value)
-        except KeyError:
-            print "Invalid key name or pattern when trying to create a key/value pair."
+        self.__get_or_create_key(key)
+        self.__set_key(key, value)
 
         return
+
 
     def read(self, key):
         """
         """
-        try:
-            value = self.__get_or_create_key(key)
-        except KeyError:
-            print "The key does not exist in databases containers"
+        value = self.__get_or_create_key(key)
 
         return value
 
@@ -84,11 +97,14 @@ class FsDb(object):
         """
         self.__set_key(key, value)
 
+        return
 
     def delete(self, key):
         """
         """
         self.__del_key(key)
+
+        return True
 
     def vaccum(self):
         """
