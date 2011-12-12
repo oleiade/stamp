@@ -61,6 +61,7 @@ class FsDb(object):
         """
         """
         try:
+            self.__get_or_create_key(key)
             self.__set_key(key, value)
         except KeyError:
             print "Invalid key name or pattern when trying to create a key/value pair."
@@ -190,7 +191,7 @@ class FsDb(object):
                 self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
             elif computed_container:
                 self.db[CONTAINERS_KEYS][computed_container] = value
-        except IndexError:
+        except KeyError:
             print "Whether the given container or key does not exist"
 
         return
