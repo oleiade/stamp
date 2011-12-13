@@ -97,7 +97,6 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_load_from_default(self):
-        """Test load() method with default class attrs"""
         # Load the file content using simplejson, and force
         # FsDb instance to override it's content with it's load
         # method, in order to compare values.
@@ -110,7 +109,6 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_load_from_path(self):
-        """Test load() method with a given file path in param"""
         # Load the file content using simplejson, and force
         # FsDb instance to override it's content with it's load
         # method using the same path as the one gived to simplejson
@@ -136,11 +134,52 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_dump_to_default(self):
-        pass
+        # FsDb db has already been initialized at
+        # construct.
+        self.fsdb.db[CONTAINERS_KEYS]["paths"]["test"] = "test"
+        self.fsdb.dump()
 
+        # Retrieve datas from the fsdb dump to
+        # default file. If not valid json, raises
+        # a JSONDecodeError.
+        fp = open(STAMP_DB_PATH, 'r')
+
+        try:
+            dumped_db = json.load(fp)
+        except JSONDecodeError:
+            self.fail("simplejson.load() failed to load dump from file")
+
+        self.assertIsNotNone(dumped_db)
+        self.assertIsInstance(dumped_db, dict)
+        self.assertIn("test", dumped_db[CONTAINERS_KEYS]["paths"])
+        self.assertEqual(dumped_db[CONTAINERS_KEYS]["paths"]["test"], "test")
+
+        fp.close()
 
     def test_dump_to_path(self):
-        pass
+        # FsDb db has already been initialized at
+        # construct.
+        path = '/tmp/dump_test'
+
+        self.fsdb.db[CONTAINERS_KEYS]["paths"]["test"] = "test"
+        self.fsdb.dump('/tmp/dump_test')
+
+        # Retrieve datas from the fsdb dump to
+        # default file. If not valid json, raises
+        # a JSONDecodeError.
+        fp = open(path, 'r')
+
+        try:
+            dumped_db = json.load(fp)
+        except JSONDecodeError:
+            self.fail("simplejson.load() failed to load dump from file")
+
+        self.assertIsNotNone(dumped_db)
+        self.assertIsInstance(dumped_db, dict)
+        self.assertIn("test", dumped_db[CONTAINERS_KEYS]["paths"])
+        self.assertEqual(dumped_db[CONTAINERS_KEYS]["paths"]["test"], "test")
+
+        fp.close()
 
 
     def test_create_valid_key_value(self):

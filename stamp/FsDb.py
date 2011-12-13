@@ -73,10 +73,10 @@ class FsDb(object):
         path            String : path to the file to load
                         database from.
         """
-        path = self.storage_file_path if not path else path
-        fp = open(path, 'r')
+        path = path if path else self.storage_file_path
 
         try:
+            fp = open(path, 'r')
             self.db = json.load(fp)
             fp.close()
         except IOError as (strerror, errno):
@@ -96,9 +96,9 @@ class FsDb(object):
                         file path (string) or a yet openend file descriptor.
         """
         f = path if path else self.storage_file_path
-        fp = open(f, 'w')
 
         try:
+            fp = open(f, 'w')
             json.dump(self.db, fp, indent=4)
             fp.close()
         except IOError as (strerror, errno):
