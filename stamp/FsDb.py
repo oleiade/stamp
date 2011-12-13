@@ -73,7 +73,8 @@ class FsDb(object):
         path            String : path to the file to load
                         database from.
         """
-        fp = open(self.storage_file_path, 'r+')
+        path = self.storage_file_path if not path else path
+        fp = open(path, 'r')
 
         try:
             self.db = json.load(fp)
