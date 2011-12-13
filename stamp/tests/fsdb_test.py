@@ -208,11 +208,24 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_create_already_existing_key(self):
-        """Should raise an already existing"""
-#        container = "paths"
-#        key = "test"
-#        test_key = container + ":" + key
-#        self.fsdb.create(test_key, first_value)
+        container = "paths"
+        key = "test"
+        test_key = container + ":" + key
+        test_value = "bla"
+        test_new_value = "alb"
+        self.fsdb.create(test_key, test_value)
+
+        # Trying to re-create the key, should have
+        # the same value than first_value
+        self.fsdb.create(test_key)
+        self.assertIn(key, self.fsdb.db[CONTAINERS_KEYS][container])
+        self.assertEqual(self.fsdb.db[CONTAINERS_KEYS][container][key], test_value)
+
+        # Tryin to re-create a key with a different value,
+        # should fail, and leave the same value.
+        self.fsdb.create(test_key, test_new_value)
+        self.assertIn(key, self.fsdb.db[CONTAINERS_KEYS][container])
+        self.assertEqual(self.fsdb.db[CONTAINERS_KEYS][container][key], test_value)
 
 
 
