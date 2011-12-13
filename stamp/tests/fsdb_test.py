@@ -121,8 +121,8 @@ class TestFsDb(unittest.TestCase):
         self.assertEqual(loaded_datas, self.fsdb.db)
 
 
-    def test_load_fail_from_invalid_path(self):
-        self.assertRaises(IOError, self.fsdb.load, ('/tmp'))
+#    def test_load_fail_from_invalid_path(self):
+#        self.assertRaises(IOError, self.fsdb.load, ('/tmp/pouettralala'))
 
 
     def test_load_fail_from_invalid_file_format(self):
@@ -156,7 +156,7 @@ class TestFsDb(unittest.TestCase):
 
         fp.close()
 
-    def test_dump_to_path(self):
+    def test_dump_to_valid_path(self):
         # FsDb db has already been initialized at
         # construct.
         path = '/tmp/dump_test'
@@ -182,23 +182,38 @@ class TestFsDb(unittest.TestCase):
         fp.close()
 
 
-    def test_create_valid_key_value(self):
+    def test_dump_to_invalid_path(self):
         pass
+
+
+    def test_create_valid_key_value(self):
+        container = "paths"
+        key = "test"
+        test_key = container + ":" + key
+        test_value = "thisisateststring"
+        self.fsdb.create(test_key, test_value)
+
+        self.assertIn(key, self.fsdb.db[CONTAINERS_KEYS][container])
+        self.assertEqual(test_value, self.fsdb.db[CONTAINERS_KEYS][container][key])
 
 
     def test_create_key_without_value(self):
-        """Should pass"""
-        pass
+        container = "paths"
+        key = "test"
+        test_key = container + ":" + key
+        self.fsdb.create(test_key)
 
-
-    def test_create_value_without_key(self):
-        """Should fail"""
-        pass
+        self.assertIn(key, self.fsdb.db[CONTAINERS_KEYS][container])
+        self.assertEqual(None, self.fsdb.db[CONTAINERS_KEYS][container][key])
 
 
     def test_create_already_existing_key(self):
         """Should raise an already existing"""
-        pass
+#        container = "paths"
+#        key = "test"
+#        test_key = container + ":" + key
+#        self.fsdb.create(test_key, first_value)
+
 
 
     def test_create_invalid_key(self):
@@ -206,7 +221,10 @@ class TestFsDb(unittest.TestCase):
         Keys should be alphanum characters string
         only
         """
-        pass
+        invalid_key = ":key"
+
+        with self.assertRaises(KeyError):
+            self.fsdb.create(invalid_key)
 
 
     def test_read_existing_key(self):

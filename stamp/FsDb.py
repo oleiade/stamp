@@ -107,7 +107,7 @@ class FsDb(object):
         return
 
 
-    def create(self, key, value):
+    def create(self, key, value=None):
         """
         Creates a key/value pair in the database. A container
         has to be specified, using the redis-like FsDb syntax:
@@ -118,8 +118,12 @@ class FsDb(object):
                         redis-like pattern (container:key)
         value           _ : any value type to store at database container key
         """
-        self.__get_or_create_key(key)
-        self.__set_key(key, value)
+        db_key = self.__get_or_create_key(key)
+
+        # update value, only if retrieved or create key
+        # has no content/value yet.
+        if not db_key:
+            self.__set_key(key, value)
 
         return
 
@@ -253,13 +257,16 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
-        db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
+        if computed_container and computed_key:
+            db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
+            db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
+        else:
+            raise KeyError("Whether container or key is missing")
 
         return db_key
 
 
-    def __set_key(self, key, value):
+    def __set_key(self, key, value=None):
         """
         Updates a database key with value. Fails if
         pointed key doesn't already exist.
