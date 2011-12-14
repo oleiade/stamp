@@ -241,17 +241,29 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_read_existing_key(self):
-        pass
+        container = "paths"
+        key = "test"
+        test_key = container + ":" + "test"
+        value = "bla"
+
+        self.fsdb.db[CONTAINERS_KEYS][container][key] = value
+        retrieved_value = self.fsdb.read(test_key)
+        self.assertEqual(type(value), type(retrieved_value))
+        self.assertEqual(value, retrieved_value)
 
 
     def test_read_not_existing_key(self):
-        """Should raise a KeyError"""
-        pass
+        values = (
+            self.fsdb.read("lambda:delta"),
+            self.fsdb.read("lambda:"),
+            self.fsdb.read(":delta"),
+        )
 
-
-    def test_read_existing_key(self):
-        pass
-
+        for v in values:
+            # __get_key should return -1 when
+            # failing
+            self.assertIsInstance(v, int)
+            self.assertEqual(v, -1)
 
     def test_update_not_existing_key(self):
         """Should raise exception"""

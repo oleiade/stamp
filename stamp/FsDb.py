@@ -135,7 +135,7 @@ class FsDb(object):
         key             String : key to retrieve value from, following the
                         redis-like pattern (container:key)
         """
-        value = self.__get_or_create_key(key)
+        value = self.__get_key(key)
 
         return value
 
@@ -266,6 +266,32 @@ class FsDb(object):
         return db_key
 
 
+    def __get_key(self, key):
+        """
+        Retrieves a database key/value pair.
+        Returns -1 and shows the KeyError exception
+        when requested key doesn't exist.
+
+        key             String : key which value should be retrieved from,
+                        following the redis-like pattern (container:key)
+
+        """
+        computed_container, computed_key = self.__compute_key(key)
+        value = None
+
+        try:
+            if computed_container and computed_key:
+                value = self.db[CONTAINERS_KEYS][computed_container][computed_key]
+            elif computed_container and not computed_key:
+                value = self.db[CONTAINERS_KEYS][computed_container]
+            else:
+                raise KeyError("Requested key doesn't exist")
+        except KeyError:
+            value = -1
+            print "Requested key doesn't exist"
+
+        return value
+
     def __set_key(self, key, value=None):
         """
         Updates a database key with value. Fails if
@@ -280,7 +306,7 @@ class FsDb(object):
         try:
             if computed_container and computed_key:
                 self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
-            elif computed_container:
+            elif computed_container and not computed_key:
                 self.db[CONTAINERS_KEYS][computed_container] = value
         except KeyError:
             print "Whether the given container or key does not exist"
