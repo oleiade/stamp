@@ -197,12 +197,17 @@ class TestFsDb(unittest.TestCase):
         self.assertEqual(test_value, self.fsdb.db[CONTAINERS_KEYS][container][key])
 
 
-#    def test_create_container(self):
-#        container = "paths"
-#        key = ""
-#        test_key = container + ":" + key
-# when creating a container, check that the value is dict,
-# it has to be a dict!
+    def test_create_container(self):
+        # TODO
+        # when creating a container, check that the value is dict,
+        # it has to be a dict!
+        container = "paths"
+        key = ""
+        test_key = container + ":" + key
+
+        self.fsdb.create(test_key)
+        self.assertIn(container, self.fsdb.db[CONTAINERS_KEYS])
+        # self.assertIsInstance(self.fsdb.db[CONTAINERS_KEYS][container], dict)
 
 
     def test_create_key_without_value(self):

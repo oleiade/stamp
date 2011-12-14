@@ -229,8 +229,9 @@ class FsDb(object):
             try:
                 computed_container, computed_key = key.split(':')
             except ValueError:
-                print "Invalid pattern used for key creation. \
-                valid should look like table:key"
+                # if there are no semicolon in key string, then
+                # we can consider that only a container was given.
+                computed_container = key
         else:
             raise ValueError("Keys should be made of two alnum strings with ':' separator")
 
