@@ -8,7 +8,7 @@ from datetime import datetime
 from simplejson import JSONDecodeError
 
 from stamp import FsDb
-from stamp.FsDb import META_KEYS, CONTAINERS_KEYS
+from stamp.FsDb import META_KEYS, CONTAINERS_KEYS, BASE_CONTAINERS
 from stamp.constants import STAMP_DB_FILENAME
 
 STAMP_DB_PATH = os.environ["HOME"] + '/' + STAMP_DB_FILENAME
@@ -69,6 +69,14 @@ class TestFsDb(unittest.TestCase):
         self.assertIsInstance(loaded_db_dump, dict)
         self.assertIn(META_KEYS, loaded_db_dump)
         self.assertIn(CONTAINERS_KEYS, loaded_db_dump)
+
+
+    def test_init_base_containers_creation(self):
+        self.fsdb.init()
+
+        for container in BASE_CONTAINERS:
+            self.assertIn(container, self.fsdb.db[CONTAINERS_KEYS])
+            self.assertIsInstance(self.fsdb.db[CONTAINERS_KEYS][container], dict)
 
 
     def test_update_meta_from_env(self):

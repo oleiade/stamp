@@ -10,6 +10,10 @@ from constants import STAMP_DB_FILENAME
 
 META_KEYS = "meta"
 CONTAINERS_KEYS = "containers"
+BASE_CONTAINERS = (
+    "paths",
+    "licenses",
+)
 
 class FsDb(object):
     """
@@ -182,11 +186,12 @@ class FsDb(object):
                 'created_at': datetime.now().strftime("%d/%m/%Y"),
                 'last_updated_at': datetime.now().strftime("%d/%m/%Y"),
             },
-            CONTAINERS_KEYS : {
-                'licenses': {},
-                'paths': {},
-            },
+            CONTAINERS_KEYS : {},
         }
+
+        for container in BASE_CONTAINERS:
+            self.db[CONTAINERS_KEYS][container] = {}
+
         self.dump()
 
         return
