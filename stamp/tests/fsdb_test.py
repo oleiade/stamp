@@ -288,10 +288,25 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_delete_existing_key(self):
-        pass
+        self.fsdb.db[CONTAINERS_KEYS]["paths"]["lambda"] = 1
+        self.fsdb.db[CONTAINERS_KEYS]["gamma"] = 2
+
+        # Testing a container:key can be deleted
+        self.assertIn("lambda", self.fsdb.db[CONTAINERS_KEYS]["paths"])
+        self.fsdb.delete("paths:lambda")
+        self.assertNotIn("lambda", self.fsdb.db[CONTAINERS_KEYS]["paths"])
+
+        # Testing a container can even be deleted
+        self.assertIn("gamma", self.fsdb.db[CONTAINERS_KEYS])
+        self.fsdb.delete("gamma:")
+        self.assertNotIn("gamma", self.fsdb.db[CONTAINERS_KEYS])
+
 
     def test_delete_not_existing_key(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.fsdb.delete("lambda:delta")
+            self.fsdb.delete("lambda:")
+            self.fsdb.delete(":delta")
 
 
     def test_vacuum(self):
