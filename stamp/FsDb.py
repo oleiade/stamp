@@ -141,7 +141,7 @@ class FsDb(object):
         return value if value != -1 else None
 
 
-    def update(self, key, value):
+    def update(self, key, value, incremental=True):
         """
         Updates an existing key value with the one given
         as param. If key does not already exist, will result
@@ -151,7 +151,7 @@ class FsDb(object):
                         following the redis-like pattern (container:key)
         value           _ : any value type to store at database container key
         """
-        self.__set_key(key, value)
+        self.__set_key(key, value, incremental=incremental)
 
         return
 
@@ -302,7 +302,8 @@ class FsDb(object):
 
         return value
 
-    def __set_key(self, key, value=None):
+
+    def __set_key(self, key, value=None, incremental=True):
         """
         Updates a database key with value. Fails if
         pointed key doesn't already exist.
@@ -314,9 +315,17 @@ class FsDb(object):
         computed_container, computed_key = self.__compute_key(key)
 
         if computed_container and computed_key:
-            self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
+            dump = self.db[CONTAINERS_KEYS][computed_container][computed_key]
+            if incremental and dump:
+                self.db[CONTAINERS_KEYS][computed_container][computed_key] = dict(dump.items() + value.items())
+            else:
+                self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
         elif computed_container and not computed_key:
-            self.db[CONTAINERS_KEYS][computed_container] = value
+            dump = self.db[CONTAINERS_KEYS][computed_container]
+            if incremental and dump:
+                self.db[CONTAINERS_KEYS][computed_container] = dict(dump.items() + value.items())
+            else:
+                self.db[CONTAINERS_KEYS][computed_container] = value
         else:
             raise KeyError("Whether the given container or key does not exist")
 

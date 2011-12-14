@@ -305,7 +305,34 @@ class TestFsDb(unittest.TestCase):
         # at the given key, is a mutable struct type (dict,
         # list, deques...), update is able to add values,
         # without overriding the present values.
-        pass
+        container = "paths"
+        key = "gamma"
+        test_key = container + ":" + key
+        value = {
+            "delta": "D",
+            "omega": "O",
+        }
+
+        # Init the db with default values
+        self.fsdb.db[CONTAINERS_KEYS][container][key] = value
+
+        # Should be able to add a single key/value
+        # pair (as dict (always)).
+        self.fsdb.update(test_key, {"iota": "I"})
+        self.assertIn("delta", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertIn("omega", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertIn("iota", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertEqual(self.fsdb.db[CONTAINERS_KEYS][container][key]["iota"], "I")
+
+        # Should be able to add a dict of key/values, that
+        # will be merged into the existing dict.
+        self.fsdb.update(test_key, {"upsilon": "U", "eta": "E"})
+        self.assertIn("delta", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertIn("omega", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertIn("upsilon", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertEqual(self.fsdb.db[CONTAINERS_KEYS][container][key]["upsilon"], "U")
+        self.assertIn("eta", self.fsdb.db[CONTAINERS_KEYS][container][key])
+        self.assertEqual(self.fsdb.db[CONTAINERS_KEYS][container][key]["eta"], "E")
 
 
     def test_delete_existing_key(self):
