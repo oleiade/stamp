@@ -137,7 +137,7 @@ class FsDb(object):
         """
         value = self.__get_key(key)
 
-        return value
+        return value if value != -1 else None
 
 
     def update(self, key, value):
@@ -279,16 +279,12 @@ class FsDb(object):
         computed_container, computed_key = self.__compute_key(key)
         value = None
 
-        try:
-            if computed_container and computed_key:
-                value = self.db[CONTAINERS_KEYS][computed_container][computed_key]
-            elif computed_container and not computed_key:
-                value = self.db[CONTAINERS_KEYS][computed_container]
-            else:
-                raise KeyError("Requested key doesn't exist")
-        except KeyError:
-            value = -1
-            print "Requested key doesn't exist"
+        if computed_container and computed_key:
+            value = self.db[CONTAINERS_KEYS][computed_container][computed_key]
+        elif computed_container and not computed_key:
+            value = self.db[CONTAINERS_KEYS][computed_container]
+        else:
+            raise KeyError("Requested key doesn't exist")
 
         return value
 
@@ -303,13 +299,12 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        try:
-            if computed_container and computed_key:
-                self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
-            elif computed_container and not computed_key:
-                self.db[CONTAINERS_KEYS][computed_container] = value
-        except KeyError:
-            print "Whether the given container or key does not exist"
+        if computed_container and computed_key:
+            self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
+        elif computed_container and not computed_key:
+            self.db[CONTAINERS_KEYS][computed_container] = value
+        else:
+            raise KeyError("Whether the given container or key does not exist")
 
         return
 
@@ -324,12 +319,11 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        try:
-            if computed_container and computed_key:
-                del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
-            elif computed_container:
-                del(self.db[CONTAINERS_KEYS][computed_container])
-        except KeyError:
-            print "Whether the computed key or container doesn't exist in database"
+        if computed_container and computed_key:
+            del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
+        elif computed_container:
+            del(self.db[CONTAINERS_KEYS][computed_container])
+        else:
+            raise KeyError("Whether the computed key or container doesn't exist in database")
 
         return

@@ -253,17 +253,11 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_read_not_existing_key(self):
-        values = (
-            self.fsdb.read("lambda:delta"),
-            self.fsdb.read("lambda:"),
-            self.fsdb.read(":delta"),
-        )
+        with self.assertRaises(KeyError):
+            self.fsdb.read("lambda:delta")
+            self.fsdb.read("lambda:")
+            self.fsdb.read(":delta")
 
-        for v in values:
-            # __get_key should return -1 when
-            # failing
-            self.assertIsInstance(v, int)
-            self.assertEqual(v, -1)
 
     def test_update_not_existing_key(self):
         """Should raise exception"""
