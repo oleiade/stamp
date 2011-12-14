@@ -73,13 +73,11 @@ class FsDb(object):
         path            String : path to the file to load
                         database from.
         """
-        fp = open(self.storage_file_path, 'r+')
+        path = path if path else self.storage_file_path
 
-        try:
-            self.db = json.load(fp)
-            fp.close()
-        except IOError as (strerror, errno):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        fp = open(path, 'r')
+        self.db = json.load(fp)
+        fp.close()
 
         return
 
@@ -95,9 +93,9 @@ class FsDb(object):
                         file path (string) or a yet openend file descriptor.
         """
         f = path if path else self.storage_file_path
-        fp = open(f, 'w')
 
         try:
+            fp = open(f, 'w')
             json.dump(self.db, fp, indent=4)
             fp.close()
         except IOError as (strerror, errno):
@@ -106,7 +104,7 @@ class FsDb(object):
         return
 
 
-    def create(self, key, value):
+    def create(self, key, value=None):
         """
         Creates a key/value pair in the database. A container
         has to be specified, using the redis-like FsDb syntax:
@@ -117,8 +115,12 @@ class FsDb(object):
                         redis-like pattern (container:key)
         value           _ : any value type to store at database container key
         """
-        self.__get_or_create_key(key)
-        self.__set_key(key, value)
+        db_key = self.__get_or_create_key(key)
+
+        # update value, only if retrieved or create key
+        # has no content/value yet.
+        if not db_key:
+            self.__set_key(key, value)
 
         return
 
@@ -130,9 +132,9 @@ class FsDb(object):
         key             String : key to retrieve value from, following the
                         redis-like pattern (container:key)
         """
-        value = self.__get_or_create_key(key)
+        value = self.__get_key(key)
 
-        return value
+        return value if value != -1 else None
 
 
     def update(self, key, value):
@@ -223,11 +225,14 @@ class FsDb(object):
         key             String : key to create or get, following the
                         redis-like pattern (container:key)
         """
-        try:
-            computed_container, computed_key = key.split(':')
-        except ValueError:
-            print "Invalid pattern used for key creation. \
-            valid should look like table:key"
+        if key.replace(":", "", 1).isalnum():
+            try:
+                computed_container, computed_key = key.split(':')
+            except ValueError:
+                print "Invalid pattern used for key creation. \
+                valid should look like table:key"
+        else:
+            raise ValueError("Keys should be made of two alnum strings with ':' separator")
 
         return computed_container, computed_key
 
@@ -252,13 +257,40 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
-        db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
+        if computed_container and computed_key:
+            db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
+            db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
+        else:
+            raise KeyError("Whether container or key is missing")
+
+
 
         return db_key
 
 
-    def __set_key(self, key, value):
+    def __get_key(self, key):
+        """
+        Retrieves a database key/value pair.
+        Returns -1 and shows the KeyError exception
+        when requested key doesn't exist.
+
+        key             String : key which value should be retrieved from,
+                        following the redis-like pattern (container:key)
+
+        """
+        computed_container, computed_key = self.__compute_key(key)
+        value = None
+
+        if computed_container and computed_key:
+            value = self.db[CONTAINERS_KEYS][computed_container][computed_key]
+        elif computed_container and not computed_key:
+            value = self.db[CONTAINERS_KEYS][computed_container]
+        else:
+            raise KeyError("Requested key doesn't exist")
+
+        return value
+
+    def __set_key(self, key, value=None):
         """
         Updates a database key with value. Fails if
         pointed key doesn't already exist.
@@ -269,13 +301,12 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        try:
-            if computed_container and computed_key:
-                self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
-            elif computed_container:
-                self.db[CONTAINERS_KEYS][computed_container] = value
-        except KeyError:
-            print "Whether the given container or key does not exist"
+        if computed_container and computed_key:
+            self.db[CONTAINERS_KEYS][computed_container][computed_key] = value
+        elif computed_container and not computed_key:
+            self.db[CONTAINERS_KEYS][computed_container] = value
+        else:
+            raise KeyError("Whether the given container or key does not exist")
 
         return
 
@@ -290,12 +321,11 @@ class FsDb(object):
         """
         computed_container, computed_key = self.__compute_key(key)
 
-        try:
-            if computed_container and computed_key:
-                del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
-            elif computed_container:
-                del(self.db[CONTAINERS_KEYS][computed_container])
-        except KeyError:
-            print "Whether the computed key or container doesn't exist in database"
+        if computed_container and computed_key:
+            del(self.db[CONTAINERS_KEYS][computed_container][computed_key])
+        elif computed_container:
+            del(self.db[CONTAINERS_KEYS][computed_container])
+        else:
+            raise KeyError("Whether the computed key or container doesn't exist in database")
 
         return
