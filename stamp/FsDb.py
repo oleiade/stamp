@@ -75,12 +75,9 @@ class FsDb(object):
         """
         path = path if path else self.storage_file_path
 
-        try:
-            fp = open(path, 'r')
-            self.db = json.load(fp)
-            fp.close()
-        except IOError as (strerror, errno):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        fp = open(path, 'r')
+        self.db = json.load(fp)
+        fp.close()
 
         return
 

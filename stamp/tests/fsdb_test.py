@@ -121,8 +121,9 @@ class TestFsDb(unittest.TestCase):
         self.assertEqual(loaded_datas, self.fsdb.db)
 
 
-#    def test_load_fail_from_invalid_path(self):
-#        self.assertRaises(IOError, self.fsdb.load, ('/tmp/pouettralala'))
+    def test_load_fail_from_invalid_path(self):
+        with self.assertRaises(IOError):
+            self.fsdb.load('/tmp/pouettralala')
 
 
     def test_load_fail_from_invalid_file_format(self):
