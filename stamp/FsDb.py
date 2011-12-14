@@ -232,6 +232,7 @@ class FsDb(object):
                 # if there are no semicolon in key string, then
                 # we can consider that only a container was given.
                 computed_container = key
+                computed_key = None
         else:
             raise ValueError("Keys should be made of two alnum strings with ':' separator")
 
@@ -257,14 +258,19 @@ class FsDb(object):
                         redis-like pattern (container:key)
         """
         computed_container, computed_key = self.__compute_key(key)
+        db_table, db_key = None, None
 
-        if computed_container and computed_key:
+#        if not computed_key:
+#            computed_key = {}
+
+        if computed_container:
             db_table = self.db[CONTAINERS_KEYS].setdefault(computed_container, {})
-            db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
+            if computed_key:
+                db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
         else:
             raise KeyError("Whether container or key is missing")
 
-
+        get_or_created_key = db_key if db_key else db_table
 
         return db_key
 
