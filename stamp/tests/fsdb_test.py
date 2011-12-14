@@ -72,7 +72,6 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_update_meta_from_env(self):
-        """Tests the basic meta is correctly initialized using env"""
         self.fsdb.init()
         self.fsdb.update_meta()
 
@@ -198,6 +197,14 @@ class TestFsDb(unittest.TestCase):
         self.assertEqual(test_value, self.fsdb.db[CONTAINERS_KEYS][container][key])
 
 
+#    def test_create_container(self):
+#        container = "paths"
+#        key = ""
+#        test_key = container + ":" + key
+# when creating a container, check that the value is dict,
+# it has to be a dict!
+
+
     def test_create_key_without_value(self):
         container = "paths"
         key = "test"
@@ -261,27 +268,27 @@ class TestFsDb(unittest.TestCase):
 
 
     def test_update_not_existing_key(self):
-        """Should raise exception"""
-        pass
+        with self.assertRaises(KeyError):
+            self.fsdb.update("lambda:gamma", "test")
+            self.fsdb.update("paths:test", "test")
+            self.fsdb.update("container:", "bla")
 
 
     def test_update_with_invalid_key(self):
-        pass
+        with self.assertRaises(KeyError):
+            self.fsdb.update(":test", "test")
 
 
     def test_update_incremental(self):
-        """
-        Should test that if the value stored
-        at the given key, is a mutable struct type (dict,
-        list, deques...), update is able to add values,
-        without overriding the present values.
-        """
+        # Should test that if the value stored
+        # at the given key, is a mutable struct type (dict,
+        # list, deques...), update is able to add values,
+        # without overriding the present values.
         pass
 
 
     def test_delete_existing_key(self):
         pass
-
 
     def test_delete_not_existing_key(self):
         pass
