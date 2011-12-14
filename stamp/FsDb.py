@@ -225,11 +225,14 @@ class FsDb(object):
         key             String : key to create or get, following the
                         redis-like pattern (container:key)
         """
-        try:
-            computed_container, computed_key = key.split(':')
-        except ValueError:
-            print "Invalid pattern used for key creation. \
-            valid should look like table:key"
+        if key.replace(":", "", 1).isalnum():
+            try:
+                computed_container, computed_key = key.split(':')
+            except ValueError:
+                print "Invalid pattern used for key creation. \
+                valid should look like table:key"
+        else:
+            raise ValueError("Keys should be made of two alnum strings with ':' separator")
 
         return computed_container, computed_key
 
@@ -259,6 +262,8 @@ class FsDb(object):
             db_key = self.db[CONTAINERS_KEYS][computed_container].setdefault(computed_key, {})
         else:
             raise KeyError("Whether container or key is missing")
+
+
 
         return db_key
 

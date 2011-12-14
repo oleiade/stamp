@@ -242,10 +242,18 @@ class TestFsDb(unittest.TestCase):
         Keys should be alphanum characters string
         only
         """
-        invalid_key = ":key"
+        # invalid patterns and non-alphanum keys should not be
+        # created.
+        invalid_keys = [":key"]
+        invalid_patterns = ["paths:'\j(*&", "#%^ke:test"]
 
-        with self.assertRaises(KeyError):
-            self.fsdb.create(invalid_key)
+        for k in invalid_keys:
+            with self.assertRaises(KeyError):
+                self.fsdb.create(k)
+
+        for k in invalid_patterns:
+            with self.assertRaises(ValueError):
+                self.fsdb.create(k)
 
 
     def test_read_existing_key(self):
