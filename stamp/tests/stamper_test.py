@@ -3,7 +3,6 @@
 import os
 import unittest
 
-from stamp.tests.utilities import assertListsList
 from stamp import License, Stamper, constants
 
 
@@ -11,6 +10,11 @@ class TestStamper(unittest.TestCase):
     """
 
     """
+    def assertListsList(self, lists_list):
+        if lists_list and len(lists_list) > 0:
+            for t in lists_list:
+                self.assertIsInstance(t, list)
+
     def setUp(self):
         self.test_content_path = os.path.join(os.path.dirname(__file__), 'test_content')
         self.test_license_path = os.path.join(self.test_content_path, 'valid_test_license_file.txt')

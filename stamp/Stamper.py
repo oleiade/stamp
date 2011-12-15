@@ -18,7 +18,9 @@
 import os
 
 import utils
-from constants import OPTION_TYPE_FILE, OPTION_TYPE_FOLDER
+
+from stamp.FsDb import FsDb
+from stamp.constants import OPTION_TYPE_FILE, OPTION_TYPE_FOLDER
 
 class Stamper:
     """
@@ -32,6 +34,7 @@ class Stamper:
         self.MAX_CONCURRENT_FD = 128
         self.PATH_CHUNKS_SIZE = 128
 
+        self.patched_files_db = FsDb()
         self.license = license_inst
         self.fd_buffer = {}
 
