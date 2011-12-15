@@ -39,7 +39,7 @@ class Stamper:
         self.fd_buffer = {}
 
 
-    def _has_shebang(self, file_content):
+    def __has_shebang(self, file_content):
         """
         Checks if a file, given as a list, contains
         a shebang instruction as it's first line.
@@ -57,7 +57,7 @@ class Stamper:
             return None
 
 
-    def _get_folder_files(self, folder, exclude_dotted=True):
+    def __get_folder_files(self, folder, exclude_dotted=True):
         """
         Given a folder, recursively retrieves contained files
         returns a list of lists ([file extension, file path]).
@@ -89,7 +89,7 @@ class Stamper:
         return listed_dirs
 
 
-    def _get_path_elements(self, path, path_type=None,
+    def __get_path_elements(self, path, path_type=None,
                            exclude_dotted=True):
         """
         Recursively retrieves a path files.
@@ -111,7 +111,7 @@ class Stamper:
         # path_type is given and is equal to constants folder macro
         # then os.path.isdir(path) won't be executed.
         if path_type == OPTION_TYPE_FOLDER or os.path.isdir(path):
-            listed_elems = self._get_folder_files(path, exclude_dotted)
+            listed_elems = self.__get_folder_files(path, exclude_dotted)
         else:
             # as we already know it's a file, go on and check for common
             # idioms.
@@ -125,7 +125,7 @@ class Stamper:
         return(listed_elems)
 
 
-    def _dump_file_content(self, file_descriptor):
+    def __dump_file_content(self, file_descriptor):
         """
         Method dumping a file content to a list.
 
@@ -145,7 +145,7 @@ class Stamper:
         return file_dump
 
 
-    def _get_fd_from_path(self, path, mode="r+"):
+    def __get_fd_from_path(self, path, mode="r+"):
         """
         Opens a file_descriptor from a path, using
         with given mode. Adds it to the stamper class
@@ -168,25 +168,7 @@ class Stamper:
         return True
 
 
-    def buffer_file_descriptors(self, paths_list, mode):
-        """
-        Recursively open file descriptor and add
-        the paths pointed by the paths_list
-        to the object file descriptor buffer.
-
-        paths_list              List : paths, that should be opened
-                                as a file descriptor and putted into
-                                the stamper fd buffer.
-        mode                    string : file descriptor opening mode
-                                that should be used.
-        """
-        for p in paths_list:
-            self._get_fd_from_path(p, mode=mode)
-
-        return
-
-
-    def _clear_fd_buffers(self):
+    def __clear_fd_buffers(self):
         """
         Walks through the stamper object file descriptor
         buffer, close every found fd, and clears the
@@ -203,6 +185,24 @@ class Stamper:
         return
 
 
+    def buffer_file_descriptors(self, paths_list, mode):
+        """
+        Recursively open file descriptor and add
+        the paths pointed by the paths_list
+        to the object file descriptor buffer.
+
+        paths_list              List : paths, that should be opened
+                                as a file descriptor and putted into
+                                the stamper fd buffer.
+        mode                    string : file descriptor opening mode
+                                that should be used.
+        """
+        for p in paths_list:
+            self.__get_fd_from_path(p, mode=mode)
+
+        return
+
+
     def write_header_to_file(self, file_descriptor, header):
         """
         Method adding a license content at the begining
@@ -214,10 +214,10 @@ class Stamper:
                                 as a given destination file header.
         """
         try:
-            file_dump =  self._dump_file_content(file_descriptor)
+            file_dump =  self.__dump_file_content(file_descriptor)
             # only apply header if
 
-            shebang = self._has_shebang(file_dump)
+            shebang = self.__has_shebang(file_dump)
             # Applying license only if file has a shebang
             if shebang:
                 file_dump = file_dump[1:]
@@ -245,7 +245,7 @@ class Stamper:
         verbose                 Bool : Whether should display it's actions on
                                 stdout or not.
         """
-        files_in_path = self._get_path_elements(path, path_type)
+        files_in_path = self.__get_path_elements(path, path_type)
 
         for chunk in utils.chunker(files_in_path, self.PATH_CHUNKS_SIZE):
             paths = [x[1] for x in chunk]  # Extract file paths
@@ -258,6 +258,6 @@ class Stamper:
                 self.write_header_to_file(self.fd_buffer[elem[1]], file_license)
                 if verbose :
                     print "Stamping: %s" % found_file[1]
-            self._clear_fd_buffers()
+            self.__clear_fd_buffers()
 
         return
