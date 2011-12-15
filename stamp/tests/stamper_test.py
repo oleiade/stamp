@@ -5,81 +5,99 @@ import unittest
 
 from stamp import License, Stamper, constants
 
+STAMPER_TEST_FILES_PREFIX = "stamper_test_file_"
+APACHE_LICENSE_HEADER_CONTENT = """ Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+"""
 
 class TestStamper(unittest.TestCase):
-    """
+    def __generate_test_files(self):
+        """
+        Generates test files on which license
+        should be stamper.
+        Returns a list of paths.
+        """
+        files_paths = []
+        file_names = [
+            "py_file.py",
+            "c_file.c",
+            "php_file.php",
+        ]
 
-    """
+        for counter, f in enumerate(file_names):
+            path = "/tmp" + "/" + STAMPER_TEST_FILES_PREFIX + f
+            f = open(path, 'w')
+
+            if counter == 0:
+                f.write("#!/usr/bin/env python\n\n This is a shebanged test file content")
+            else:
+                f.write("This is a test file content")
+
+            f.close()
+            files_paths.append(path)
+
+        self.test_files_paths = files_paths
+
+        return files_paths
+
+
+    def __generate_test_license_file(self):
+        license_file_path = "/tmp" + "/" + STAMPER_TEST_FILES_PREFIX + "apache_license"
+        file_content = APACHE_LICENSE_HEADER_CONTENT
+
+        f = open(license_file_path, 'w')
+        f.write(file_content)
+        f.close()
+
+        self.test_license_file_path = license_file_path
+
+        return license_file_path
+
+
+    def __flush_test_files(self):
+        for p in self.test_files_paths:
+            f = open(p, 'w')
+            f.flush()
+            f.close()
+
+        return
+
+
     def assertListsList(self, lists_list):
         if lists_list and len(lists_list) > 0:
             for t in lists_list:
                 self.assertIsInstance(t, list)
 
-    def setUp(self):
-        self.test_content_path = os.path.join(os.path.dirname(__file__), 'test_content')
-        self.test_license_path = os.path.join(self.test_content_path, 'valid_test_license_file.txt')
 
-        self.license = License.License(self.test_license_path)
+    def setUp(self):
+        # Assigning function return value for memotechnic reasons
+        self.test_files_paths = self.__generate_test_files()
+        self.test_license_file_path = self.__generate_test_license_file()
+
+        self.license = License.License(self.test_license_file_path)
         self.inst = Stamper.Stamper(self.license)
 
 
-    def test_get_folder_files(self):
-        test_folder = os.path.join(self.test_content_path, 'test_dir')
-        folder_total_files = 5
-        folder_dotted_files = 3
-        folder_nodotted_files = 2
-        folder_dotted_ext_files = 1
-
-        nodotted_folder_content = self.inst._get_folder_files(test_folder, exclude_dotted=True)
-        dotted_folder_content = self.inst._get_folder_files(test_folder, exclude_dotted=False)
-
-        self.assertIsInstance(nodotted_folder_content, list)
-        self.assertIsInstance(dotted_folder_content, list)
-        self.assertListsList(nodotted_folder_content)
-        self.assertListsList(dotted_folder_content)
-
-        self.assertEqual(len(nodotted_folder_content), folder_total_files - folder_dotted_files)  # 2 == 2
-        # Only dotted files using an extension should pass
-        self.assertEqual(len(dotted_folder_content), folder_nodotted_files + folder_dotted_ext_files)  # 3 == 3
-
-
-    def test_get_path_file_descriptor(self):
-        i = 0
-        mode = 'r'
-
-        while i < 15:
-            self.inst._get_fd_from_path(self.test_license_path, mode)
-            i += 1
-
-        # Though we asked multiple file descriptor, the buffer
-        # should only contain one, as we unduplicate paths using
-        # dictionnary.
-        self.assertEqual(len(self.inst.fd_buffer), 1)
-        for f in self.inst.fd_buffer.values():
-            self.assertIsInstance(f, file)
-            self.assertFalse(f.closed)
-            self.assertEqual(f.mode, mode)
-
-
-    def test_clear_fd_buffers(self):
-        mode = 'r'
-        i = 0
-
-        while i < 15:
-            self.inst._get_fd_from_path(self.test_license_path, mode)
-            i += 15
-
-        fd_buffers_dump = self.inst.fd_buffer
-        self.assertEqual(len(fd_buffers_dump), 1)
-
-        self.inst._clear_fd_buffers()
-        for fd in fd_buffers_dump.values():
-            self.assertTrue(fd.closed)
-        self.assertEqual(self.inst.fd_buffer, {})
+    def test_apply_license(self):
+        pass
 
 
     def tearDown(self):
-        self.inst.fd_buffers = {}
+        self.__flush_test_files()
 
 suite = unittest.TestLoader().loadTestsFromTestCase(TestStamper)
 unittest.TextTestRunner(verbosity=2).run(suite)
